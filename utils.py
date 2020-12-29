@@ -14,7 +14,9 @@ def run_simulation(pomcp, initial_belief, steps):
         if time_step==0:
             state = np.random.choice(list(initial_belief.keys()), 1, list(initial_belief.values()))[0]
         else:
-            state = pomcp.sample_state_from_history(history) #TODO check this step, is exact belief update required
+            # state = pomcp.sample_state_from_history(history) #TODO check this step, is exact belief update required
+            state = next_state #current state is set to next state from previous time step
+
 
 
         next_state, observation, reward = pomcp.environment.step(state, best_action)
