@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bab0b700-37d3-42e7-9b7d-5cbabb63072b" name="phoenix" url="http://cortex.cs.huji.ac.il/">
+        <fileTransfer rootFolder="/cs/usr/nitalon" accessType="SFTP" host="phoenix.cs.huji.ac.il" port="22" sshConfigId="81921f9d-4b28-424d-87f7-a936d9e8715e" sshConfig="nitalon@phoenix.cs.huji.ac.il:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
