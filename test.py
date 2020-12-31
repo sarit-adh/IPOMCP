@@ -1,8 +1,5 @@
 from pomcp import POMCP
-from node import Node
-from environment import TigerEnvironment
-import numpy as np
-import sys
+from Problems.tiger.environment import TigerEnvironment
 from utils import run_simulation
 
 states = ['TL','TR']

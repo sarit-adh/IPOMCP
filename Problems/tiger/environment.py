@@ -1,6 +1,7 @@
 import random
 import numpy as np
 
+
 class Environment(object):
 	def __init__(self, states, observations, actions, observation_table, reward_table, transition_table):
 		self.states = states
@@ -10,13 +11,13 @@ class Environment(object):
 		self.observation_table = observation_table
 		self.transition_table = transition_table
 	
-	def get_state_name(self,index):
+	def get_state_name(self, index):
 		return self.states[index]
 
-	def get_observation_name(self,index):
+	def get_observation_name(self, index):
 		return self.observations[index]
 
-	def get_action_name(self,index):
+	def get_action_name(self, index):
 		return self.actions[index]
 
 	def sample_action(self):
@@ -26,17 +27,12 @@ class Environment(object):
 		return random.randrange(0,len(self.states))
 
 	def step(self, state, action):
-
 		sampled_next_state = self.sample_next_state(state, action)
 		sampled_observation = self.sample_observation(sampled_next_state, action)
 		reward = self.get_reward(state, action)
 		return sampled_next_state, sampled_observation, reward
 
-
-
-		
 	def sample_next_state(self,cur_state, action):
-
 		if type(self.transition_table[cur_state][action][0]) is dict:
 			next_state_distribution = self.transition_table[cur_state][action][0]
 		else:
@@ -67,7 +63,6 @@ class Environment(object):
 			return self.reward_table[state][action][0]
 		else:
 			return self.reward_table[state][action]
-
 
 
 	def belief_update(self, prev_belief, action, observation):

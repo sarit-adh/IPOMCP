@@ -1,6 +1,5 @@
 from utils import *
-import sys
-from environment import *
+from Problems.tiger.environment import *
 from pomcp import POMCP
 from ipomcp import IPOMCP
 
