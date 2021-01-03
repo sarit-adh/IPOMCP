@@ -1,5 +1,5 @@
 from Environment.environment import IPOMDPEnvironment
-from Problems.tiger.objects import *
+from Problems.tiger.tiger_objects import *
 import random
 
 
@@ -16,7 +16,7 @@ class TigerEnvironment(IPOMDPEnvironment):
         return state
 
     def __str__(self):
-        return f'Tiger problem with noise {self.noise}'
+        return f'Tiger problem with noise parameter {self.noise}'
 
     def transition_function(self, state, actions, **kwargs):
         if actions.name.startswith("open"):
@@ -48,21 +48,3 @@ class TigerEnvironment(IPOMDPEnvironment):
         observation = self.observation_function(state, actions, next_state)
         reward = self.reward_function(state, actions)
         return next_state, observation, reward
-
-
-def unittest():
-    states = [State("tiger-left"), State("tiger-right")]
-    observations = []
-    tiger_problem = TigerEnvironment(states, observations)
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("listen"))
-    print(f'action {Action("listen")} yields observation {o} ,reward {r} and new state {s}')
-
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("open-left"))
-    print(f'action {Action("open-left")} yields observation {o} ,reward {r} and new state {s}')
-
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("open-right"))
-    print(f'action {Action("open-right")} yields observation {o} ,reward {r} and new state {s}')
-
-
-if __name__ == '__main__':
-    unittest()

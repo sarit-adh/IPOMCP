@@ -111,6 +111,7 @@ class RewardFunction(ABC):
         :return: array: the conditional distribution :math: `P(r|s,a,s')`
         """
         pass
+
 # TODO(Nitay/Sarit) - add the abstract class for the interactive state
 # The POMCP/IPOMCP algorithm requires a black-box model of the environment
 

@@ -1,5 +1,5 @@
 from pomcp import POMCP
-from Problems.tiger.environment import TigerEnvironment
+from Problems.tiger.tiger_environment import TigerEnvironment
 from utils import run_simulation
 
 states = ['TL','TR']

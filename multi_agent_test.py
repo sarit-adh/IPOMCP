@@ -1,5 +1,5 @@
 from utils import *
-from Problems.tiger.environment import *
+from Problems.tiger.tiger_environment import *
 from pomcp import POMCP
 from ipomcp import IPOMCP
 
