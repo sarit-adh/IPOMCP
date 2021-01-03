@@ -5,8 +5,9 @@ import random
 
 class TigerEnvironment(IPOMDPEnvironment):
 
-    def __init__(self, states, actions, observations):
-        super(TigerEnvironment, self).__init__(states, actions, observations)
+    def __init__(self, states, observations, noise=0.15):
+        super().__init__(states, observations)
+        self.noise = noise
 
     def _set_initial_state(self, state=None):
         if state is None:
@@ -14,17 +15,20 @@ class TigerEnvironment(IPOMDPEnvironment):
             return initial_state
         return state
 
+    def __str__(self):
+        return f'Tiger problem with noise {self.noise}'
+
     def transition_function(self, state, actions, **kwargs):
         if actions.name.startswith("open"):
             return State(random.choice(self.states).name)
         if actions.name.startswith("listen"):
             return State(state.name)
 
-    def observation_function(self, state, actions, next_state, noise=0.15):
+    def observation_function(self, state, actions, next_state, **kwargs):
         if actions.name.startswith("open"):
             return Observation(random.choice(self.states).name)
         else:
-            obs = next_state.name if random.random() <= (1 - noise) else next_state.other().name
+            obs = next_state.name if random.random() <= (1 - self.noise) else next_state.other().name
             return Observation(obs)
 
     def reward_function(self, state, actions, **kwargs):
@@ -35,9 +39,13 @@ class TigerEnvironment(IPOMDPEnvironment):
                 return 10
         return -1
 
-    def step(self, state, actions) -> object:
+    def step(self, state, actions, **kwargs) -> object:
+        """
+
+        :rtype: object
+        """
         next_state = self.transition_function(state, actions)
-        observation = self.observation_function(state, actions, next_state, 0.15)
+        observation = self.observation_function(state, actions, next_state)
         reward = self.reward_function(state, actions)
         return next_state, observation, reward
 
@@ -45,8 +53,7 @@ class TigerEnvironment(IPOMDPEnvironment):
 def unittest():
     states = [State("tiger-left"), State("tiger-right")]
     observations = []
-    actions = [Action("open-left"), Action("open-right"), Action("listen")]
-    tiger_problem = TigerEnvironment(states, actions, observations)
+    tiger_problem = TigerEnvironment(states, observations)
     s, o, r = tiger_problem.step(State("tiger-left"), Action("listen"))
     print(f'action {Action("listen")} yields observation {o} ,reward {r} and new state {s}')
 
@@ -56,6 +63,6 @@ def unittest():
     s, o, r = tiger_problem.step(State("tiger-left"), Action("open-right"))
     print(f'action {Action("open-right")} yields observation {o} ,reward {r} and new state {s}')
 
-    
+
 if __name__ == '__main__':
     unittest()

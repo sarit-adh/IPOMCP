@@ -58,24 +58,19 @@ class IPOMDPEnvironment(ABC):
 	The environment class represents the IPOMDP
 	"""
 
-    def __init__(self, states, actions, observations):
+    def __init__(self, states,  observations):
         """
 
     :param states: dictionary of Interactive State objects
-    :param actions: dictionary of Action objects
     :param observations: dictionary of Observations objects
     """
         self.states = states
-        self.actions = actions
         self.observations = observations
         self.initial_state = self._set_initial_state()
         self.current_state = _set_current_state(self.initial_state)
 
     def get_state_name(self, index):
         return self.states[index].name()
-
-    def get_action_name(self, index):
-        return self.actions[index].name()
 
     @abstractmethod
     def _set_initial_state(self):
@@ -95,9 +90,9 @@ class IPOMDPEnvironment(ABC):
         pass
 
     @abstractmethod
-    def step(self, state, actions):
+    def step(self, state, actions, **kwargs):
         next_state = self.transition_function(state, actions)
         observations = self.observation_function(state, actions, next_state)
-        rewards = self.reward_function(state, actions, next_state)
+        rewards = self.reward_function(state, actions)
         _set_current_state(next_state)
         return next_state, observations, rewards
