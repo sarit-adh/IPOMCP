@@ -9,14 +9,14 @@ class TigerEnvironment(IPOMDPEnvironment):
         super().__init__(states, observations)
         self.noise = noise
 
+    def __str__(self):
+        return f'Tiger problem with noise {self.noise} and true tiger location in {self.initial_state.name}'
+
     def _set_initial_state(self, state=None):
         if state is None:
             initial_state = random.choice(self.states)
             return initial_state
         return state
-
-    def __str__(self):
-        return f'Tiger problem with noise parameter {self.noise}'
 
     def transition_function(self, state, actions, **kwargs):
         if actions.name.startswith("open"):
@@ -28,7 +28,7 @@ class TigerEnvironment(IPOMDPEnvironment):
         if actions.name.startswith("open"):
             return Observation(random.choice(self.states).name)
         else:
-            obs = next_state.name if random.random() <= (1 - self.noise) else next_state.other().name
+            obs = next_state.name if random.random() <= (1-self.noise) else next_state.other().name
             return Observation(obs)
 
     def reward_function(self, state, actions, **kwargs):

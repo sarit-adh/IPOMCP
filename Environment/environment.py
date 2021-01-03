@@ -16,12 +16,12 @@ class IPOMDPEnvironment(ABC):
         self.states = states
         self.observations = observations
         self.initial_state = self._set_initial_state()
-        self._update_current_state(self.initial_state)
+        self.update_current_state(self.initial_state)
 
     def get_state_name(self, index) -> str:
         return self.states[index].name()
 
-    def _update_current_state(self, state) -> None:
+    def update_current_state(self, state) -> None:
         self.current_state = state
 
     def _get_current_state(self) -> State:

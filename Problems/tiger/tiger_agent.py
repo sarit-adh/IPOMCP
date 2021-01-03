@@ -9,10 +9,13 @@ class TigerBelief(Belief):
             new_belief = np.array([0.5, 0.5])
         else:
             if observation.name.endswith('left'):
-                new_belief = self.current_belief * np.array([0.85, 0.15])
+                p_l = self.current_belief[0] * np.array([0.85])
+                p_r = self.current_belief[1] * np.array([0.15])
+                new_belief = np.array([p_l / (p_l+p_r), p_r / (p_l + p_r)])
             else:
-                new_belief = self.current_belief * np.array([0.15, 0.85])
-            new_belief = new_belief / new_belief.sum()
+                p_l = self.current_belief[0] * np.array([0.15])
+                p_r = self.current_belief[1] * np.array([0.85])
+                new_belief = np.array([p_l / (p_l + p_r), p_r / (p_l + p_r)])
         self.current_belief = new_belief
 
     def get_current_belief(self):
@@ -39,18 +42,19 @@ class TigerAgent(Agent):
 
     @property
     def compute_optimal_policy(self) -> Action:
-        p = self.agent_type.beliefs.get_current_belief()
-        if self.planning_horizon <= 0:
-            return np.random.choice(np.array([Action('open-left'), Action('open-right')]), p)
+        if self.planning_horizon == 0:
+            return np.random.choice(np.array([Action('open-left'), Action('open-right')]))
         else:
-            if (p * [-100, 10]).sum() > -1 or (p * [10, -100]).sum() > -1:
-                return np.array([Action('open-left'), Action('open-right')])[np.argmax(p)]
+            p = self.agent_type.beliefs.get_current_belief()
+            if np.dot(p.T, np.array([-100, 10])) > -1 or np.dot(p.T, np.array([10, -100])) > -1:
+                return np.array([Action('open-left'), Action('open-right')])[np.argmin(p)]
             return Action('listen')
 
     def execute_action(self) -> (Observation, float):
         action = self.compute_optimal_policy
         self.planning_horizon -= 1
-        _, observation, reward = self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)
+        new_state, observation, reward = self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)
+        self.agent_type.frame.pomdp.update_current_state(new_state)
         self.update_history(action, observation)
         self.update_reward(reward, self.planning_horizon)
         return observation, reward
