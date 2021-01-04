@@ -44,7 +44,6 @@ class Model:
         return hash(str(self))
 
 
-
 class Frame:
 
     def __init__(self, id, actions, observations, transition_table, observation_table, reward_table,

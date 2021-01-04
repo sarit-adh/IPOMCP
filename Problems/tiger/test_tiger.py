@@ -1,33 +1,22 @@
 from tiger_environment import *
-from tiger_objects import *
 from tiger_agent import *
+from IPOMCP_solver.pomcp import POMCP
+from IPOMCP_solver.node import *
 
-
-def test_env():
-    states = [State("tiger-left"), State("tiger-right")]
-    observations = []
-    tiger_problem = TigerEnvironment(states, observations)
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("listen"))
-    print(f'action {Action("listen")} yields observation {o} ,reward {r} and new state {s}')
-
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("open-left"))
-    print(f'action {Action("open-left")} yields observation {o} ,reward {r} and new state {s}')
-
-    s, o, r = tiger_problem.step(State("tiger-left"), Action("open-right"))
-    print(f'action {Action("open-right")} yields observation {o} ,reward {r} and new state {s}')
+states = [State("tiger-left"), State("tiger-right")]
+actions = [Action("open-left"), Action("open-right"), Action('listen')]
+observations = []
+tiger_problem = TigerEnvironment(states, actions, observations)
+print(tiger_problem)
+oc = OptimalityCriterion(0.95)
+beliefs = TigerBelief(np.array([0.5, 0.5]))
+agent_beliefs = BeliefFunction(beliefs)
+tiger_frame = Frame(tiger_problem, oc)
+tiger_type = TigerType(tiger_frame, agent_beliefs)
+agent = TigerAgent(20, tiger_type, None)
 
 
 def test_agent():
-    states = [State("tiger-left"), State("tiger-right")]
-    observations = []
-    tiger_problem = TigerEnvironment(states, observations)
-    print(tiger_problem)
-    oc = OptimalityCriterion(0.95)
-    beliefs = TigerBelief(np.array([0.5, 0.5]))
-    agent_beliefs = BeliefFunction(beliefs)
-    tiger_frame = Frame(tiger_problem, oc)
-    tiger_type = TigerType(tiger_frame, agent_beliefs)
-    agent = TigerAgent(20, tiger_type, None)
     while agent.planning_horizon > 0:
         o, r = agent.execute_action()
         print(o.name, r)
@@ -36,5 +25,12 @@ def test_agent():
     print(agent.agent_type.frame.oc.get_current_reward())
 
 
+def test_pomcp():
+    root_node = ObservationNode(None, '', '')
+    tiger_pomcp = POMCP(tiger_type)
+    br_node, br_value,  = tiger_pomcp.search(root_node)
+    print(br_node.name, br_value)
+
+
 if __name__ == '__main__':
-    test_agent()
+    test_pomcp()

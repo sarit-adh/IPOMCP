@@ -8,12 +8,14 @@ class IPOMDPEnvironment(ABC):
     <S,A_i,\Omega_i, T_i, O_i, R_i>
     """
 
-    def __init__(self, states, observations) -> None:
+    def __init__(self, states, actions, observations) -> None:
         """
     :param states: dictionary of Interactive State objects
+    :param actions: dictionary of Action objects
     :param observations: dictionary of Observations objects
     """
         self.states = states
+        self.actions = actions
         self.observations = observations
         self.initial_state = self._set_initial_state()
         self.update_current_state(self.initial_state)
@@ -48,5 +50,5 @@ class IPOMDPEnvironment(ABC):
         next_state = self.transition_function(state, actions)
         observations = self.observation_function(state, actions, next_state)
         rewards = self.reward_function(state, actions)
-        self._update_current_state(next_state)
+        self.update_current_state(next_state)
         return next_state, observations, rewards

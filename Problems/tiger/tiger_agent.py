@@ -28,15 +28,19 @@ class TigerBelief(Belief):
         plt.hist(self.current_belief)
 
 
-class TigerType(Type):
+class TigerType(AgentType):
 
     def update_belief(self, action: Action, observation: Observation, **kwargs) -> None:
         self.beliefs.update_belief(action, observation)
 
+    def rollout_policy(self):
+        action = np.random.choice(self.frame.pomdp.actions)
+        return action
+
 
 class TigerAgent(Agent):
 
-    def __init__(self, planning_horizon: int, agent_type: Type, planner) -> None:
+    def __init__(self, planning_horizon: int, agent_type: AgentType, planner) -> None:
         self.planning_horizon = planning_horizon
         super().__init__(agent_type, planner)
 

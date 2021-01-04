@@ -36,10 +36,8 @@ class Node:
     def propagate(self, child_value):
         # TODO : modify for POMDP
         new_value = self.immediate_reward + child_value
-
         self.value_sum += new_value
         self.times_visited += 1
-
         if not self.is_root():
             self.parent.propagate(new_value)
 

@@ -1,4 +1,4 @@
-from pomcp import POMCP
+from IPOMCP_solver.pomcp import POMCP
 from Problems.tiger.tiger_environment import TigerEnvironment
 from utils import run_simulation
 

@@ -1,8 +1,9 @@
 from Agent.frame import *
 from Agent.functions import *
+import numpy as np
 
 
-class Type(ABC):
+class AgentType(ABC):
     """
     This class implements the type (definition 1) - i.e., pompd + beliefs + optimality criteria
     """
@@ -14,6 +15,23 @@ class Type(ABC):
         self.frame = frame
         self.beliefs = beliefs
 
+    def list_all_actions(self):
+        return self.frame.pomdp.actions
+
+    def list_all_states(self):
+        return self.frame.pomdp.states
+
+    def sample_states(self) -> State:
+        state = np.random.choice(self.frame.pomdp.states)
+        return state
+
     @abstractmethod
     def update_belief(self, action: Action, observation: Observation, **kwargs) -> None:
         self.beliefs.update_belief(action, observation)
+
+    @abstractmethod
+    def rollout_policy(self) -> Action:
+        """
+        This method computes the rollout policy for a given AgentType using a given planner
+        """
+        pass

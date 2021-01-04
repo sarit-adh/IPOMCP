@@ -1,9 +1,9 @@
-from Agent.type import *
+from Agent.agenttype import *
 
 
 class Agent(ABC):
 
-    def __init__(self, agent_type: Type, planner) -> None:
+    def __init__(self, agent_type: AgentType, planner) -> None:
         self.agent_type = agent_type
         self.planner = planner
         self.history = None
@@ -17,7 +17,7 @@ class Agent(ABC):
     @abstractmethod
     def compute_optimal_policy(self):
         """
-        This method computes the optimal policy for a given Type using a given planner
+        This method computes the optimal policy for a given AgentType using a given planner
         """
         pass
 

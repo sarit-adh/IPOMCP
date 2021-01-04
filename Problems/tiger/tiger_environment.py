@@ -5,8 +5,8 @@ import random
 
 class TigerEnvironment(IPOMDPEnvironment):
 
-    def __init__(self, states, observations, noise=0.15):
-        super().__init__(states, observations)
+    def __init__(self, states, actions, observations, noise=0.15):
+        super().__init__(states, actions, observations)
         self.noise = noise
 
     def __str__(self):
