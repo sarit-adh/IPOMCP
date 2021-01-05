@@ -69,6 +69,7 @@ class TigerAgent(Agent):
     @property
     def execute_action(self) -> (Observation, float):
         action = self.compute_optimal_policy
+        self.actions.append(action)
         self.planning_horizon -= 1
         new_state, observation, reward = \
             self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)

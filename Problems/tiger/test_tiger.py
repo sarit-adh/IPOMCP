@@ -13,7 +13,7 @@ beliefs = TigerBelief(np.array([0.5, 0.5]))
 agent_beliefs = BeliefFunction(beliefs)
 tiger_frame = Frame(tiger_problem, oc)
 tiger_type = TigerType(tiger_frame, agent_beliefs)
-agent = TigerAgent(20, tiger_type, None)
+agent = TigerAgent(5, tiger_type, None)
 
 
 def test_agent():
@@ -35,8 +35,10 @@ def test_pomcp():
 def test_agent_planner():
     tiger_pomcp = POMCP(tiger_type, horizon=3)
     agent.planner = tiger_pomcp
-    obs, reward = agent.execute_action
-    print(obs.name, reward)
+    while agent.planning_horizon >= 0:
+        obs, reward = agent.execute_action
+        print(f'Action {agent.actions[len(agent.actions)-1].name}, observation: {obs.name} and reward {reward}')
+    print(f'Total reward accumulated: {agent.agent_type.frame.oc.get_current_reward()}')
 
 
 if __name__ == '__main__':
