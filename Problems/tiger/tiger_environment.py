@@ -28,7 +28,7 @@ class TigerEnvironment(IPOMDPEnvironment):
         if actions.name.startswith("open"):
             return Observation(random.choice(self.states).name)
         else:
-            obs = next_state.name if random.random() <= (1-self.noise) else next_state.other().name
+            obs = next_state.name if random.random() <= (1 - self.noise) else next_state.other().name
             return Observation(obs)
 
     def reward_function(self, state, actions, **kwargs):
@@ -48,3 +48,10 @@ class TigerEnvironment(IPOMDPEnvironment):
         observation = self.observation_function(state, actions, next_state)
         reward = self.reward_function(state, actions)
         return next_state, observation, reward
+
+    def pomdp_step(self, actions):
+        state = self.current_state
+        next_state = self.transition_function(state, actions)
+        observation = self.observation_function(state, actions, next_state)
+        reward = self.reward_function(state, actions)
+        return observation, reward

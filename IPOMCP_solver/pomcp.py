@@ -1,5 +1,3 @@
-from typing import Any
-
 from Agent.agenttype import *
 from IPOMCP_solver.node import *
 from collections import OrderedDict
@@ -49,9 +47,12 @@ class POMCP:
         action = h.ucb_score()
         action_node = self.tree[h.history + "--" + action.name]
         new_state, observation, reward = self.environment.frame.pomdp.step(s, action)
-        new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name),
-                                           str(observation.name), True)
-        action_node.add_child(new_history_node)
+        if observation.name in action_node.children.keys():
+            new_history_node = action_node.children[observation.name]
+        else:
+            new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name),
+                                               str(observation.name), True)
+            action_node.add_child(new_history_node)
         r = reward + self.gamma * self.simulate(new_state, new_history_node, depth + 1)
         self.tree[new_history_node.history] = new_history_node
         h.add_particle(new_state)

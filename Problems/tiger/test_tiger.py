@@ -27,9 +27,10 @@ def test_agent():
 
 def test_pomcp():
     root_node = ObservationNode(None, '', '')
-    tiger_pomcp = POMCP(tiger_type)
+    tiger_pomcp = POMCP(tiger_type, horizon=3)
     br_node, br_value,  = tiger_pomcp.search(root_node)
-    print(br_node.name, br_value)
+    obs, reward = tiger_problem.pomdp_step(br_node)
+    br_node, br_value, = tiger_pomcp.search(br_node.children[obs.name])
 
 
 if __name__ == '__main__':
