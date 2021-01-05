@@ -1,6 +1,7 @@
 from Agent.agent import *
-import numpy as np
 import matplotlib.pyplot as plt
+from IPOMCP_solver.pomcp import POMCP
+from IPOMCP_solver.node import *
 
 
 class TigerBelief(Belief):
@@ -42,10 +43,21 @@ class TigerAgent(Agent):
 
     def __init__(self, planning_horizon: int, agent_type: AgentType, planner) -> None:
         self.planning_horizon = planning_horizon
+        self.observations = [None]        
+        self.actions = []
+        self.current_node = None
         super().__init__(agent_type, planner)
 
     @property
     def compute_optimal_policy(self) -> Action:
+        if isinstance(self.planner, POMCP):
+            if self.current_node is None:
+                root_node = ObservationNode(None, '', '')
+            else:
+                root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
+            br_node, br_value, = self.planner.search(root_node)
+            self.current_node = br_node
+            return Action(br_node.name)
         if self.planning_horizon == 0:
             return np.random.choice(np.array([Action('open-left'), Action('open-right')]))
         else:
@@ -54,10 +66,13 @@ class TigerAgent(Agent):
                 return np.array([Action('open-left'), Action('open-right')])[np.argmin(p)]
             return Action('listen')
 
+    @property
     def execute_action(self) -> (Observation, float):
         action = self.compute_optimal_policy
         self.planning_horizon -= 1
-        new_state, observation, reward = self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)
+        new_state, observation, reward = \
+            self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)
+        self.observations.append(observation)
         self.agent_type.frame.pomdp.update_current_state(new_state)
         self.update_history(action, observation)
         self.update_reward(reward, self.planning_horizon)

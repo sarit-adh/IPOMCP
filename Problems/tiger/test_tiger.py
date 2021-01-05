@@ -18,7 +18,7 @@ agent = TigerAgent(20, tiger_type, None)
 
 def test_agent():
     while agent.planning_horizon > 0:
-        o, r = agent.execute_action()
+        o, r = agent.execute_action
         print(o.name, r)
         print(agent.agent_type.beliefs.get_current_belief())
         print(agent.planning_horizon)
@@ -28,10 +28,16 @@ def test_agent():
 def test_pomcp():
     root_node = ObservationNode(None, '', '')
     tiger_pomcp = POMCP(tiger_type, horizon=3)
-    br_node, br_value,  = tiger_pomcp.search(root_node)
+    br_node, br_value = tiger_pomcp.search(root_node)
     obs, reward = tiger_problem.pomdp_step(br_node)
-    br_node, br_value, = tiger_pomcp.search(br_node.children[obs.name])
+
+
+def test_agent_planner():
+    tiger_pomcp = POMCP(tiger_type, horizon=3)
+    agent.planner = tiger_pomcp
+    obs, reward = agent.execute_action
+    print(obs.name, reward)
 
 
 if __name__ == '__main__':
-    test_pomcp()
+    test_agent_planner()

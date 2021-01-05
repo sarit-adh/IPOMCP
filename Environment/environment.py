@@ -47,6 +47,10 @@ class IPOMDPEnvironment(ABC):
 
     @abstractmethod
     def step(self, state, actions, **kwargs):
+        """
+
+        :rtype: object
+        """
         next_state = self.transition_function(state, actions)
         observations = self.observation_function(state, actions, next_state)
         rewards = self.reward_function(state, actions)

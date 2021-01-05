@@ -54,6 +54,9 @@ class ObservationNode(Node):
         self.particle_set = []
         self.is_empty = is_empty
 
+    def __str__(self) -> str:
+        return f'Observations node with {self.times_visited} visits'
+
     def add_particle(self, particle: State) -> None:
         self.particle_set.append(particle)
 
