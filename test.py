@@ -32,6 +32,8 @@ initial_belief = {0 : 0.5 , 1 : 0.5}
 #print("Best Action: "+ str(best_action))
 #sys.exit()
 
+#finite horizon, averaged across multiple episodes
+'''
 num_episodes = 100
 rewards = []
 #run for all time-steps
@@ -44,7 +46,15 @@ for i in range(0, num_episodes):
 
 print("Average Reward:" + str(np.mean(rewards)))
 print("Standard deviation: " + str(np.std(rewards)))
+'''
 
+#infinite time horizon
+
+horizon = 1000 #to simulate infinite horizon, would terminate much earlier whenever gamma**depth < epsilon
+steps =10
+pomcp = POMCP(environment, 0.95, epsilon, horizon)
+cur_reward = run_simulation(pomcp, initial_belief, steps)
+print("cur_reward: "+ str(cur_reward))
 
 
 
