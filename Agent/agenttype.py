@@ -1,5 +1,5 @@
 from Agent.frame import *
-from Agent.functions import *
+from Agent.objects import *
 import numpy as np
 
 
@@ -7,7 +7,7 @@ class AgentType(ABC):
     """
     This class implements the type (definition 1) - i.e., pompd + beliefs + optimality criteria
     """
-    def __init__(self, frame: Frame, beliefs: BeliefFunction) -> None:
+    def __init__(self, frame: Frame, beliefs: Belief) -> None:
         """
 
         :type beliefs: object

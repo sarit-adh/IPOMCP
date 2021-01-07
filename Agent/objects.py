@@ -35,3 +35,6 @@ class Belief(ABC):
         This function returns a plot of the current belief distribution
         """
         pass
+
+    def reset_belief(self):
+        self.current_belief = self.initial_belief
