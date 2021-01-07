@@ -1,6 +1,7 @@
 import itertools
 from temp_storage import *
 
+
 class InteractiveState:
 
     def __init__(self, state, model):
