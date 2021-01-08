@@ -79,14 +79,13 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         return State(next_position, next_rock_types, next_terminal)
 
     def observation_function(self, state, actions, next_state, **kwargs):
-        rocks = {self._rock_locs[pos]: pos for pos in self._rock_locs}
         if not next_state.is_terminal and isinstance(actions, CheckAction):
             # compute efficiency
-            rock_pos = rocks[actions.rock_id]
+            rock_pos = self._rock_locs[:, actions.rock_id]
             dist = euclidean_dist(rock_pos, next_state.position)
             eta = (1 + pow(2, -dist / self.half_efficiency_dist)) * 0.5
             keep = eta > 0.5
-            true_rock_type = next_state.rocktypes[actions.rock_id]
+            true_rock_type = next_state.rock_types[actions.rock_id]
             if not keep:
                 observed_rock_type = Rock.invert(true_rock_type)
                 return Observation(observed_rock_type)
@@ -111,6 +110,7 @@ class RockSampleEnvironment(IPOMDPEnvironment):
                     return -10
             else:
                 return 0  # problem didn't specify penalty for sampling empty space.
+        return 0
 
     def step(self, state, actions, **kwargs) -> object:
         """
@@ -130,10 +130,23 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         return observation, reward
 
 
-def test_rocksample_env():
-    rs_env = RockSampleEnvironment(8, 5)
-    print(rs_env.print_map())
+def test_rocksample_check_action():
+    s, o, r = rs_env.step(rs_env.init_state, CheckAction(2))
+    print(s, o, r)
+
+
+def test_rocksample_move_action():
+    s, o, r = rs_env.step(rs_env.init_state, MoveEast)
+    print(s, o, r)
+
+
+def test_rocksample_sample_action():
+    s, o, r = rs_env.step(rs_env.init_state, SampleAction)
+    print(s, o, r)
 
 
 if __name__ == '__main__':
-    test_rocksample_env()
+    rs_env = RockSampleEnvironment(8, 5)
+    test_rocksample_check_action()
+    test_rocksample_move_action()
+    test_rocksample_sample_action()

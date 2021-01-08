@@ -80,8 +80,8 @@ class Action(Action):
 
 
 class MoveAction(Action):
-    EAST =  (1, 0)  # x is horizontal; x+ is right. y is vertical; y+ is up.
-    WEST =  (-1, 0)
+    EAST = (1, 0)  # x is horizontal; x+ is right. y is vertical; y+ is up.
+    WEST = (-1, 0)
     NORTH = (0, -1)
     SOUTH = (0, 1)
 
