@@ -1,7 +1,7 @@
 from rs_environment import *
 from rs_agent import *
 from IPOMCP_solver.pomcp import POMCP
-from IPOMCP_solver.node import *
+
 
 rock_sample_problem = RockSampleEnvironment(8, 5)
 oc = OptimalityCriterion(0.95)
@@ -9,6 +9,7 @@ agent_beliefs = RockSampleBelief(None)
 rs_frame = Frame(rock_sample_problem, oc)
 rs_type = RockSampleType(rs_frame, agent_beliefs)
 agent = RockSampleAgent(5, rs_type, None)
+
 
 def test_agent_planner():
     rs_pomcp = POMCP(rs_type, horizon=5)

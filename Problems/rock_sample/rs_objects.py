@@ -60,9 +60,6 @@ class State(State):
 
 class Action(Action):
 
-    def __init__(self, name):
-        self.name = name
-
     def __hash__(self):
         return hash(self.name)
 

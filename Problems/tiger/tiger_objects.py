@@ -47,3 +47,15 @@ class Action(Action):
 
     def __str__(self):
         return f'{self.name}'
+
+
+class ListenAction(Action):
+    def __init__(self):
+        super().__init__("listen")
+
+
+class OpenAction(Action):
+    def __init__(self, action: str):
+        if action not in ['open-left', 'open-right']:
+            raise ValueError(f'Invalid action {action}')
+        super().__init__(action)

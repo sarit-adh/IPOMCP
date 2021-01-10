@@ -6,7 +6,7 @@ import random
 class TigerEnvironment(IPOMDPEnvironment):
 
     def __init__(self, states, actions, observations, noise=0.15):
-        super().__init__(states, actions, observations)
+        super().__init__(states, self._set_all_actions(), observations)
         self.noise = noise
 
     def __str__(self):
@@ -17,6 +17,12 @@ class TigerEnvironment(IPOMDPEnvironment):
             initial_state = random.choice(self.states)
             return initial_state
         return state
+
+    def _set_all_actions(self) -> list:
+        open_actions = [OpenAction('open-left'), OpenAction('open-right')]
+        listen_action = [ListenAction]
+        actions_list = [open_actions, listen_action]
+        return [item for sublist in actions_list for item in sublist]
 
     def transition_function(self, state, actions, **kwargs):
         if actions.name.startswith("open"):
