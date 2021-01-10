@@ -1,5 +1,6 @@
 from Environment.environment import IPOMDPEnvironment
 from Problems.rock_sample.rs_objects import *
+import seaborn as sns; sns.set_theme()
 
 
 class RockSampleEnvironment(IPOMDPEnvironment):
@@ -18,10 +19,9 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         
     def print_map(self) -> np.array:
         initial_map = np.zeros([self._n, self._n])
-        for i in range(self._rock_locs.shape[1]):
-            loc = self._rock_locs[:, i]
-            initial_map[loc[0], loc[1]] = 1 if self.initial_state.rock_types[i] == 'good' else -1
-        return initial_map
+        for k, v in self._rock_locs.items():
+            initial_map[k[0], k[1]] = 1 if self.initial_state.rock_types[v] == 'good' else -1
+        return sns.heatmap(initial_map)
 
     def _set_all_actions(self) -> list:
         move_actions = [MoveEast, MoveWest, MoveNorth, MoveSouth]

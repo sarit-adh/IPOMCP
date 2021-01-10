@@ -1,14 +1,14 @@
 from rs_environment import *
 from rs_agent import *
 from IPOMCP_solver.pomcp import POMCP
-
+import matplotlib.pyplot as plt
 
 rock_sample_problem = RockSampleEnvironment(8, 5)
 oc = OptimalityCriterion(0.95)
 agent_beliefs = RockSampleBelief(None)
 rs_frame = Frame(rock_sample_problem, oc)
 rs_type = RockSampleType(rs_frame, agent_beliefs)
-agent = RockSampleAgent(5, rs_type, None)
+agent = RockSampleAgent(20, rs_type, None)
 
 
 def test_agent_planner():
@@ -21,4 +21,6 @@ def test_agent_planner():
 
 
 if __name__ == '__main__':
+    # plt = rock_sample_problem.print_map()
+    # plt.show()
     test_agent_planner()

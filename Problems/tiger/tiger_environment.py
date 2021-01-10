@@ -20,7 +20,7 @@ class TigerEnvironment(IPOMDPEnvironment):
 
     def _set_all_actions(self) -> list:
         open_actions = [OpenAction('open-left'), OpenAction('open-right')]
-        listen_action = [ListenAction]
+        listen_action = [ListenAction()]
         actions_list = [open_actions, listen_action]
         return [item for sublist in actions_list for item in sublist]
 
