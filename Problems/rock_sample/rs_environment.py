@@ -9,33 +9,41 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         self._k = k
         self._rock_locs = self._set_rocks_locations()
         self._rock = {}
-        self.init_state = self._set_initial_state()
+        self.initial_state = self._set_initial_state()
         self.half_efficiency_dist = half_efficiency_dist
-        super().__init__(None, None, None)
+        super().__init__(None, self._set_all_actions(), None)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Rock Sample problem with grid size {self._n} by {self._n}' \
                f' {self} rocks'
         
-    def print_map(self):
+    def print_map(self) -> np.array:
         initial_map = np.zeros([self._n, self._n])
         for i in range(self._rock_locs.shape[1]):
             loc = self._rock_locs[:, i]
-            initial_map[loc[0], loc[1]] = 1 if self.init_state.rock_types[i] == 'good' else -1
+            initial_map[loc[0], loc[1]] = 1 if self.initial_state.rock_types[i] == 'good' else -1
         return initial_map
+
+    def _set_all_actions(self) -> list:
+        move_actions = [MoveEast, MoveWest, MoveNorth, MoveSouth]
+        sample_action = [SampleAction()]
+        check_actions = [CheckAction(rock_id) for rock_id in range(self._k)]
+        actions_list = [move_actions, sample_action, check_actions]
+        return [item for sublist in actions_list for item in sublist]
 
     def _set_rocks_locations(self) -> np.array:
         """
         This method randomly sets the k rocks
         :return:
         """
+        
         x_locs = np.random.randint(0, self._n, self._k)
         y_locs = np.random.randint(0, self._n, self._k)
         locations = np.array([x_locs, y_locs])
         return locations
 
     def _set_initial_state(self, state=None) -> State:
-        """Returns init_state and rock locations for an instance of RockSample(n,k)"""
+        """Returns initial_state and rock locations for an instance of RockSample(n,k)"""
         rover_position = (0, 0)
         for i in range(self._rock_locs.shape[1]):
             loc = self._rock_locs[:, i]
@@ -43,8 +51,20 @@ class RockSampleEnvironment(IPOMDPEnvironment):
             self._rock[i] = loc
         rock_types = np.random.choice([Rock.GOOD, Rock.BAD], self._k)
         # Ground truth state
-        init_state = State(rover_position, rock_types, False)
-        return init_state
+        initial_state = State(rover_position, rock_types, False)
+        return initial_state
+
+    def sample_state(self) -> State:
+        """Samples states and rock locations for an instance of RockSample(n,k)"""
+        rover_position = (0, 0)
+        for i in range(self._rock_locs.shape[1]):
+            loc = self._rock_locs[:, i]
+            # Each rock has a location
+            self._rock[i] = loc
+        rock_types = np.random.choice([Rock.GOOD, Rock.BAD], self._k)
+        # Ground truth state
+        state = State(rover_position, rock_types, False)
+        return state
 
     def _in_exit_area(self, position):
         return position[0] == self._n
@@ -131,17 +151,17 @@ class RockSampleEnvironment(IPOMDPEnvironment):
 
 
 def test_rocksample_check_action():
-    s, o, r = rs_env.step(rs_env.init_state, CheckAction(2))
+    s, o, r = rs_env.step(rs_env.initial_state, CheckAction(2))
     print(s, o, r)
 
 
 def test_rocksample_move_action():
-    s, o, r = rs_env.step(rs_env.init_state, MoveEast)
+    s, o, r = rs_env.step(rs_env.initial_state, MoveEast)
     print(s, o, r)
 
 
 def test_rocksample_sample_action():
-    s, o, r = rs_env.step(rs_env.init_state, SampleAction)
+    s, o, r = rs_env.step(rs_env.initial_state, SampleAction)
     print(s, o, r)
 
 

@@ -25,6 +25,10 @@ class RockSampleBelief(Belief):
 
 class RockSampleType(AgentType):
 
+    def sample_states(self) -> State:
+        state = self.frame.pomdp.sample_state()
+        return state
+
     def update_belief(self, action: Action, observation: Observation, **kwargs) -> None:
         self.beliefs.update_belief(action, observation)
 

@@ -110,6 +110,9 @@ class CheckAction(Action):
         super().__init__("check-%d" % self.rock_id)
 
 
+ALL_ACTIONS = [MoveEast, MoveWest, MoveNorth, MoveSouth, SampleAction, CheckAction]
+
+
 class Observation(Observation):
 
     def __init__(self, quality):
