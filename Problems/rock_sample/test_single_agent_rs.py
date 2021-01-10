@@ -11,7 +11,7 @@ rs_type = RockSampleType(rs_frame, agent_beliefs)
 agent = RockSampleAgent(5, rs_type, None)
 
 def test_agent_planner():
-    rs_pomcp = POMCP(rs_type, horizon=3)
+    rs_pomcp = POMCP(rs_type, horizon=5)
     agent.planner = rs_pomcp
     while agent.planning_horizon >= 0:
         obs, reward = agent.execute_action

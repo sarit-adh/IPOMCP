@@ -44,8 +44,9 @@ class POMCP:
             h.update_value()
             action_node.update_value(R)
             return R
-        action = h.ucb_score()
-        action_node = self.tree[h.history + "--" + action.name]
+        action_node = h.ucb_score()
+        #(TODO - Nitay) Edit for the RS case - implement same for Tiger problem
+        action = [a for a in self.environment.frame.pomdp.actions if a.name == action_node.name][0]
         new_state, observation, reward = self.environment.frame.pomdp.step(s, action)
         if observation.name in action_node.children.keys():
             new_history_node = action_node.children[observation.name]

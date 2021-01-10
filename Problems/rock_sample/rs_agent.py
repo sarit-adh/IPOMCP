@@ -55,14 +55,8 @@ class RockSampleAgent(Agent):
                 root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
             br_node, br_value, = self.planner.search(root_node)
             self.current_node = br_node
-            return Action(br_node.name)
-        if self.planning_horizon == 0:
-            return np.random.choice(np.array([Action('open-left'), Action('open-right')]))
-        else:
-            p = self.agent_type.beliefs.get_current_belief()
-            if np.dot(p.T, np.array([-100, 10])) > -1 or np.dot(p.T, np.array([10, -100])) > -1:
-                return np.array([Action('open-left'), Action('open-right')])[np.argmin(p)]
-            return Action('listen')
+            action = [a for a in self.agent_type.frame.pomdp.actions if a.name == br_node.name][0]
+            return action
 
     @property
     def execute_action(self) -> (Observation, float):

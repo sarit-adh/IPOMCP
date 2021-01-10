@@ -82,8 +82,8 @@ class Action(Action):
 class MoveAction(Action):
     EAST = (1, 0)  # x is horizontal; x+ is right. y is vertical; y+ is up.
     WEST = (-1, 0)
-    NORTH = (0, -1)
-    SOUTH = (0, 1)
+    NORTH = (0, 1)
+    SOUTH = (0, -1)
 
     def __init__(self, motion, name):
         if motion not in (MoveAction.EAST, MoveAction.WEST,
@@ -110,13 +110,11 @@ class CheckAction(Action):
         super().__init__("check-%d" % self.rock_id)
 
 
-ALL_ACTIONS = [MoveEast, MoveWest, MoveNorth, MoveSouth, SampleAction, CheckAction]
-
-
 class Observation(Observation):
 
     def __init__(self, quality):
         self.quality = quality
+        self.name = quality
 
     def __hash__(self):
         return hash(self.quality)

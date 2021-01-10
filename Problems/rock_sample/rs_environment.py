@@ -8,7 +8,6 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         self._n = n
         self._k = k
         self._rock_locs = self._set_rocks_locations()
-        self._rock = {}
         self.initial_state = self._set_initial_state()
         self.half_efficiency_dist = half_efficiency_dist
         super().__init__(None, self._set_all_actions(), None)
@@ -31,24 +30,22 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         actions_list = [move_actions, sample_action, check_actions]
         return [item for sublist in actions_list for item in sublist]
 
-    def _set_rocks_locations(self) -> np.array:
+    def _set_rocks_locations(self) -> dict:
         """
         This method randomly sets the k rocks
         :return:
         """
-        
-        x_locs = np.random.randint(0, self._n, self._k)
-        y_locs = np.random.randint(0, self._n, self._k)
-        locations = np.array([x_locs, y_locs])
-        return locations
+        x_locs = np.random.choice(self._n, self._k, replace=False)
+        y_locs = np.random.choice(self._n, self._k, replace=False)
+        locations = np.array([x_locs, y_locs]).reshape([self._k, 2])
+        locations_dict = {}
+        for i in range(self._k):
+            locations_dict[tuple(locations[i])] = i
+        return locations_dict
 
     def _set_initial_state(self, state=None) -> State:
         """Returns initial_state and rock locations for an instance of RockSample(n,k)"""
         rover_position = (0, 0)
-        for i in range(self._rock_locs.shape[1]):
-            loc = self._rock_locs[:, i]
-            # Each rock has a location
-            self._rock[i] = loc
         rock_types = np.random.choice([Rock.GOOD, Rock.BAD], self._k)
         # Ground truth state
         initial_state = State(rover_position, rock_types, False)
@@ -57,10 +54,6 @@ class RockSampleEnvironment(IPOMDPEnvironment):
     def sample_state(self) -> State:
         """Samples states and rock locations for an instance of RockSample(n,k)"""
         rover_position = (0, 0)
-        for i in range(self._rock_locs.shape[1]):
-            loc = self._rock_locs[:, i]
-            # Each rock has a location
-            self._rock[i] = loc
         rock_types = np.random.choice([Rock.GOOD, Rock.BAD], self._k)
         # Ground truth state
         state = State(rover_position, rock_types, False)
@@ -101,8 +94,8 @@ class RockSampleEnvironment(IPOMDPEnvironment):
     def observation_function(self, state, actions, next_state, **kwargs):
         if not next_state.is_terminal and isinstance(actions, CheckAction):
             # compute efficiency
-            rock_pos = self._rock_locs[:, actions.rock_id]
-            dist = euclidean_dist(rock_pos, next_state.position)
+            rock_pos = list(self._rock_locs.keys())[actions.rock_id]
+            dist = euclidean_dist(np.array(rock_pos), next_state.position)
             eta = (1 + pow(2, -dist / self.half_efficiency_dist)) * 0.5
             keep = eta > 0.5
             true_rock_type = next_state.rock_types[actions.rock_id]
@@ -113,7 +106,7 @@ class RockSampleEnvironment(IPOMDPEnvironment):
                 return Observation(true_rock_type)
         else:
             # Terminated or not a check action. So no observation.
-            return Observation(None)
+            return Observation("None")
         #return self._probs[next_state][action][observation]
 
     def reward_function(self, state, actions, **kwargs):
@@ -123,7 +116,7 @@ class RockSampleEnvironment(IPOMDPEnvironment):
         if isinstance(actions, SampleAction):
             # need to check the rocktype in `state` because it has turned bad in `next_state`
             if state.position in self._rock_locs:
-                if state.rocktypes[self._rock_locs[state.position]] == Rock.GOOD:
+                if state.rock_types[self._rock_locs[state.position]] == Rock.GOOD:
                     return 10
                 else:
                     # No rock or bad rock
@@ -134,7 +127,6 @@ class RockSampleEnvironment(IPOMDPEnvironment):
 
     def step(self, state, actions, **kwargs) -> object:
         """
-
         :rtype: object
         """
         next_state = self.transition_function(state, actions)
