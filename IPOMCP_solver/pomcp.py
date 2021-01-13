@@ -1,6 +1,8 @@
 from Agent.agenttype import *
 from IPOMCP_solver.node import *
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class POMCP:
@@ -12,7 +14,24 @@ class POMCP:
         self.horizon = horizon
         self.tree = OrderedDict()
 
-    def search(self, root_node: ObservationNode, time_out=10000):
+    @staticmethod
+    def plot_pomcp_tree(action_node: ObservationNode):
+        graph = nx.DiGraph()
+        q = list(action_node.children.items())
+        val_map = {}
+        while q:
+            v, d = q.pop()
+            val_map[v] = d.value_sum
+            for nv, nd in d.children.items():
+                graph.add_edge(v, nv)
+                if isinstance(nd, Mapping):
+                    q.append((nv, nd))
+        # np.random.seed(8)
+        values = [val_map.get(node, 0.25) for node in graph.nodes()]
+        nx.draw(graph, node_color=values, with_labels=True)
+        plt.show()
+
+    def search(self, root_node: ObservationNode, time_out=10000, plot_tree=False):
         for i in range(time_out):
             if root_node.parent is None:
                 # Sample from the environment
@@ -23,6 +42,8 @@ class POMCP:
             self.simulate(sampled_state, root_node, 0)
             if root_node.history not in self.tree:
                 self.tree[root_node.history] = root_node
+        if plot_tree:
+            self.plot_pomcp_tree(root_node)
         return root_node.get_q_max()
 
     def simulate(self, s: State, h: ObservationNode, depth: int) -> float:

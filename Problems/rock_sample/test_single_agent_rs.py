@@ -1,7 +1,7 @@
 from rs_environment import *
 from rs_agent import *
 from IPOMCP_solver.pomcp import POMCP
-import matplotlib.pyplot as plt
+
 
 rock_sample_problem = RockSampleEnvironment(8, 5)
 oc = OptimalityCriterion(0.95)
