@@ -31,7 +31,7 @@ class POMCP:
         nx.draw(graph, node_color=values, with_labels=True)
         plt.show()
 
-    def search(self, root_node: ObservationNode, time_out=10000, plot_tree=False):
+    def search(self, root_node: ObservationNode, time_out=10000, plot_tree=True):
         for i in range(time_out):
             if root_node.parent is None:
                 # Sample from the environment

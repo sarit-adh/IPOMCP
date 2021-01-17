@@ -20,6 +20,7 @@ class RockSampleEnvironment(IPOMDPEnvironment):
     def print_map(self) -> np.array:
         initial_map = np.zeros([self._n, self._n])
         for k, v in self._rock_locs.items():
+            #np.unique
             initial_map[k[0], k[1]] = 1 if self.initial_state.rock_types[v] == 'good' else -1
         return sns.heatmap(initial_map)
 
