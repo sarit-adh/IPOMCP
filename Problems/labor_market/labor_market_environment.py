@@ -19,12 +19,12 @@ class LaborMarketEnvironment(IPOMDPEnvironment):
         return f'General labor market problem with fee {self.fee} and distance {self.distance}'
 
     @staticmethod
-    def _set_states(states) -> list[State]:
+    def _set_states(states) -> object:
         s = [State(val) for val in states]
         return s
 
     @staticmethod
-    def _set_actions(actions) -> list[OfferAction]:
+    def _set_actions(actions) -> object:
         a = [OfferAction(val) for val in actions]
         return a
 
