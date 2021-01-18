@@ -1,30 +1,29 @@
 from Agent.agent import *
 import matplotlib.pyplot as plt
-from scipy.stats import gamma
+from scipy.stats import norm
 from Problems.labor_market.labor_market_environment import *
 from IPOMCP_solver.pomcp import POMCP
 from IPOMCP_solver.node import *
 
 
-def left_truncated_gamma_distribution(base_measure, lower_limit, states):
-    lc = base_measure.cdf(lower_limit)
-    new_pdf = base_measure.pdf(states) / (1-lc)
+def right_truncated_normal_distribution(base_measure, lower_limit, states):
+    uc = base_measure.cdf(lower_limit)
+    new_pdf = base_measure.pdf(states) / (uc-0)
     return new_pdf / new_pdf.sum()
 
 
-class ToMZeroManagerLaborMarketBelief(Belief):
+class ToMZeroWorkerLaborMarketBelief(Belief):
 
-    def __init__(self, a, states, distance):
-        self.base_measure = gamma(a=a)
+    def __init__(self, mu, sigma, states):
+        self.base_measure = norm(loc=mu, scale=sigma)
         self.states = states
-        self.distance = distance
         super().__init__(self.base_measure.pdf(states) / self.base_measure.pdf(states).sum())
 
     def update_belief(self, action, observation) -> None:
         if observation.value == 'accept' or isinstance(action, QuitAction) or isinstance(action, AcceptAction):
             new_belief = self.base_measure
         else:
-            new_belief = left_truncated_gamma_distribution(self.base_measure, action.value / self.distance, self.states)
+            new_belief = right_truncated_normal_distribution(self.base_measure, action, self.states)
         self.current_belief = new_belief
 
     def get_current_belief(self):
@@ -37,7 +36,7 @@ class ToMZeroManagerLaborMarketBelief(Belief):
         plt.hist(self.current_belief)
 
 
-class ToMZeroManagerLaborMarketType(AgentType):
+class ToMZeroWorkerLaborMarketType(AgentType):
 
     def sample_states(self) -> State:
         state = self.frame.pomdp.sample_state()
@@ -51,7 +50,7 @@ class ToMZeroManagerLaborMarketType(AgentType):
         return action
 
 
-class ToMZeroManagerLaborMarketAgent(Agent):
+class ToMZeroWorkerLaborMarketAgent(Agent):
 
     def __init__(self, planning_horizon: int, agent_type: AgentType, planner) -> None:
         self.planning_horizon = planning_horizon

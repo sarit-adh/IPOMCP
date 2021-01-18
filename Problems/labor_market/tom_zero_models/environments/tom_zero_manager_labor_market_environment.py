@@ -45,7 +45,7 @@ class ToMZeroManagerLaborMarketEnvironment(LaborMarketEnvironment):
         if state.is_terminal:
             return 0.0
         if isinstance(actions, AcceptAction):
-            return (self.budget - actions.value).item()
+            return 0.0
         if isinstance(actions, OfferAction):
             if actions.value / self.distance > state.value:
                 return (self.budget - actions.value).item()

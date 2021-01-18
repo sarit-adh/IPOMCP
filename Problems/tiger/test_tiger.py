@@ -32,7 +32,7 @@ def test_pomcp():
 
 
 def test_agent_planner():
-    tiger_pomcp = POMCP(tiger_type, horizon=3)
+    tiger_pomcp = POMCP(tiger_type, horizon=5)
     agent.planner = tiger_pomcp
     while agent.planning_horizon >= 0:
         obs, reward = agent.execute_action

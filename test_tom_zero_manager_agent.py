@@ -2,14 +2,17 @@ from Problems.labor_market.tom_zero_models.environments.tom_zero_manager_labor_m
 from Problems.labor_market.tom_zero_models.agents.tom_zero_manager_agent import *
 from IPOMCP_solver.pomcp import POMCP
 from scipy.stats import norm, gamma
+import seaborn as sns
 
-states = gamma(5).rvs(10000)
+n = 20
+states = gamma(5).rvs(n)
+# sns.histplot(states)
 distance = 7
-actions = gamma(5).rvs(10000) * distance
-budget = norm(35, 5).rvs(1)
+actions = states * distance
+budget = norm(45, 2).rvs(1)
 fee = 1.5
 oc = OptimalityCriterion(0.95)
-manager_beliefs = ToMZeroManagerLaborMarketBelief(5, states)
+manager_beliefs = ToMZeroManagerLaborMarketBelief(5, states, distance)
 worker_model = TomZeroWorkerWorkerModel(np.random.choice(states), distance)
 manager_model = ToMZeroManagerLaborMarketEnvironment(states, actions, budget, fee, distance, worker_model)
 manager_frame = Frame(manager_model, oc)
@@ -18,7 +21,7 @@ manager = ToMZeroManagerLaborMarketAgent(20, manager_type, None)
 
 
 def test_manager_planner():
-    tom_zero_manager_pomcp = POMCP(manager_type, horizon=5)
+    tom_zero_manager_pomcp = POMCP(manager_type, horizon=3)
     manager.planner = tom_zero_manager_pomcp
     while manager.planning_horizon >= 0:
         obs, reward = manager.execute_action

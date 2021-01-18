@@ -7,8 +7,9 @@ override of the hash/equal methods
 
 class State:
 
-    def __init__(self, name):
+    def __init__(self, name, is_terminal=False):
         self.name = name
+        self.is_terminal = is_terminal
 
     def __hash__(self):
         raise NotImplementedError

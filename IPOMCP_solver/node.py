@@ -51,22 +51,27 @@ class ObservationNode(Node):
 
     def __init__(self, parent, history: str, name: str, is_empty: bool = True) -> None:
         super().__init__(parent, history, name)
-        self.particle_set = []
+        self.particle_set = {}
         self.is_empty = is_empty
 
     def __str__(self) -> str:
         return f'Observations node with {self.times_visited} visits'
 
     def add_particle(self, particle: State) -> None:
-        self.particle_set.append(particle)
+        if hash(particle) not in self.particle_set:
+            self.particle_set[hash(particle)] = [particle, 1]
+        else:
+            self.particle_set[hash(particle)][1] += 1
 
     def sample_from_particle_set(self):
-        return np.random.choice(self.particle_set)
+        weights = [v[1] for v in self.particle_set.values()]
+        states = [v[0] for v in self.particle_set.values()]
+        return np.random.choice(states, p=np.array(weights) / sum(weights))
 
     def update_value(self):
         self.times_visited += 1
 
-    def ucb_score(self, scale=10):
+    def ucb_score(self, scale=20):
         pouct = np.array(
             [child.get_mean_value() + scale * np.sqrt(np.log(self.times_visited) / child.times_visited) for child in
              self.children.values()])
