@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData">
+  <component name="PublishConfigData" serverName="phoenix">
     <serverData>
-      <paths name="sadhik6@login-1.extreme.acer.uic.edu:22">
+      <paths name="phoenix">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/Desktop" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

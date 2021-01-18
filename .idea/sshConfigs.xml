@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="phoenix.cs.huji.ac.il" id="81921f9d-4b28-424d-87f7-a936d9e8715e" port="22" nameFormat="DESCRIPTIVE" username="nitalon" />
+    </configs>
+  </component>
+</project>

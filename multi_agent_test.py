@@ -1,7 +1,5 @@
 from utils import *
-import sys
-from environment import *
-from pomcp import POMCP
+from IPOMCP_solver.pomcp import POMCP
 from ipomcp import IPOMCP
 
 filename = "Tiger.L1_no_creek.txt"

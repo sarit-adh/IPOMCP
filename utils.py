@@ -26,7 +26,7 @@ def run_simulation(pomcp, initial_belief, steps):
         print("state, action, next_state, observation, reward")
         print(state, best_action, next_state, observation, reward)
 
-        node = pomcp.history_to_node[history]
+        node = pomcp.tree[history]
         print("Belief: " + str(
             [node.particle_set.count(state) / len(node.particle_set) for state in range(0, len(pomcp.environment.states))]))
         time_step+=1

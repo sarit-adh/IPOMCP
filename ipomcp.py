@@ -3,6 +3,7 @@ from node import *
 import numpy as np
 import random
 
+
 class IPOMCP:
     def __init__(self, environment, gamma=1, epsilon=0.01, horizon=3):
         self.environment = environment
@@ -12,7 +13,6 @@ class IPOMCP:
         self.history_to_node = {}
 
     def search(self, h, initial_belief,i=10000):
-        N = i
         while i>0:
             #print("iteration:" + str(N - i + 1))
             if len(h)==0:
