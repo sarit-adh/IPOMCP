@@ -1,5 +1,5 @@
 from IPOMCP_solver.pomcp import POMCP
-from Problems.tiger.tiger_environment import TigerEnvironment
+from Problems.tiger.tiger_environment import TigerProblem
 from utils import run_simulation
 
 states = ['TL','TR']
@@ -17,7 +17,7 @@ gamma = 0.9
 epsilon = 0.01
 horizon =3
 
-environment = TigerEnvironment(states, observations, actions, sensor_accuracy, reward_listen, reward_gold, reward_tiger, noisy, beta)
+environment = TigerProblem(states, observations, actions, sensor_accuracy, reward_listen, reward_gold, reward_tiger, noisy, beta)
 pomcp = POMCP(environment, gamma, epsilon, horizon)
 
 history = ''

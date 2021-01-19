@@ -1,4 +1,4 @@
-from Problems.labor_market.labor_market_environment import *
+from Problems.labor_market.labor_market_problem import *
 from scipy.stats import norm, gamma
 
 
@@ -14,7 +14,7 @@ class TomZeroWorkerWorkerModel:
         return False, 'reject'
 
 
-class ToMZeroManagerLaborMarketEnvironment(LaborMarketEnvironment):
+class ToMZeroManagerLaborMarketEnvironment(LaborMarketProblem):
 
     def __init__(self, states, actions, budget: float,  fee: float, distance: float, model):
         self.budget = budget

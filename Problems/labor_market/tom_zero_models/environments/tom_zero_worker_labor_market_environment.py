@@ -1,4 +1,4 @@
-from Problems.labor_market.labor_market_environment import *
+from Problems.labor_market.labor_market_problem import *
 from scipy.stats import norm, gamma
 
 
@@ -14,7 +14,7 @@ class TomZeroWorkerManagerModel:
         return False, 'reject'
 
 
-class ToMZeroWorkerLaborMarketEnvironment(LaborMarketEnvironment):
+class ToMZeroWorkerLaborMarketEnvironment(LaborMarketProblem):
 
     def __init__(self, states, actions, labor_cost: float,  fee: float, distance: float, model):
         self.labor_cost = labor_cost
@@ -35,7 +35,7 @@ class ToMZeroWorkerLaborMarketEnvironment(LaborMarketEnvironment):
             return State(0, True)
         if isinstance(actions, OfferAction) and actions.value < state.value:
             return State(-1, True)
-        feasible_states = self.states[self.states < state.value]
+        feasible_states = self.states[self.states <= state.value]
         new_state = np.random.choice(feasible_states)
         return State(new_state, False)
 

@@ -145,7 +145,7 @@ class MultiAgentEnvironment(object):
 
 
 
-#Redundant code TigerPOMDP and TigerEnvironment => REFACTOR	; #environment shouldn't have notion of noisy or beta	
+#Redundant code TigerPOMDP and TigerProblem => REFACTOR	; #environment shouldn't have notion of noisy or beta
 class TigerEnvironment(Environment):
 	def __init__(self,states, observations, actions, sensor_accuracy, reward_listen, reward_gold, reward_tiger, noisy, beta):
 		reward_table = {}

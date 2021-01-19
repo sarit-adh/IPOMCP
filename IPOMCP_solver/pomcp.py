@@ -3,7 +3,6 @@ from IPOMCP_solver.node import *
 from collections import OrderedDict, Mapping
 import networkx as nx
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 class POMCP:
@@ -17,10 +16,10 @@ class POMCP:
 
     @staticmethod
     def plot_pomcp_belief(node: ObservationNode, depth=3):
-        node = node.children['listen'].children['tiger-right']
         particles_names = [v[0].name for v in node.particle_set.values()]
         particles_frequency = [v[1] for v in node.particle_set.values()]
-        plt.bar(particles_names,particles_frequency)
+        plt.bar(particles_names, np.array(particles_frequency) / sum(particles_frequency))
+        plt.xticks(rotation=90)
         plt.show()
 
     @staticmethod
@@ -38,6 +37,7 @@ class POMCP:
         # np.random.seed(8)
         values = [val_map.get(node, 0.25) for node in graph.nodes()]
         pos = nx.spring_layout(graph)
+        ec = nx.draw_networkx_edges(graph, pos, alpha=0.2)
         nc = nx.draw_networkx_nodes(graph, pos, nodelist=graph.nodes(),
                                     node_color=values, node_size=100,
                                     cmap=plt.cm.jet,

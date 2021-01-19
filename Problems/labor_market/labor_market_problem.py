@@ -1,9 +1,9 @@
-from Environment.environment import IPOMDPEnvironment
+from Environment.problem import IpomdpProbelm
 from Problems.labor_market.labor_market_objects import *
 import numpy as np
 
 
-class LaborMarketEnvironment(IPOMDPEnvironment):
+class LaborMarketProblem(IpomdpProbelm):
 
     def __init__(self, states, actions, fee: float, distance: float, model) -> None:
         self.fee = fee
@@ -81,9 +81,7 @@ class LaborMarketEnvironment(IPOMDPEnvironment):
 
     def _list_all_actions(self, actions):
         quit_action = QuitAction()
-        accept_action = AcceptAction()
         offers = [OfferAction(val) for val in actions]
-        offers.append(accept_action)
         offers.append(quit_action)
         return offers
 

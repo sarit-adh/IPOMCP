@@ -6,7 +6,7 @@ from IPOMCP_solver.node import *
 states = [State("tiger-left"), State("tiger-right")]
 actions = [Action("open-left"), Action("open-right"), Action('listen')]
 observations = []
-tiger_problem = TigerEnvironment(states, actions, observations)
+tiger_problem = TigerProblem(states, actions, observations)
 print(tiger_problem)
 oc = OptimalityCriterion(0.95)
 agent_beliefs = TigerBelief(np.array([0.5, 0.5]))

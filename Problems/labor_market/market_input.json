@@ -1,0 +1,6 @@
+{
+  "market":[{"n_samples": 50, "min_fee": 0.5, "max_fee": 5,"avg_distance": 5}],
+ "manager":[{"loc": 35, "scale": 2, "planning_horizon": 5}],
+  "worker":[{"a": 5, "planning_horizon": 5}]
+}
+

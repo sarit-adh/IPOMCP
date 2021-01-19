@@ -88,4 +88,4 @@ class ObservationNode(Node):
         q_values = self.compute_q_values()
         max_value = max(q_values.values())
         max_keys = [k for k, v in q_values.items() if v == max_value]
-        return self.children[max_keys[0]], max_value
+        return self.children[max_keys[0]]

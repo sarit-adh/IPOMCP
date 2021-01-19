@@ -1,9 +1,9 @@
-from Environment.environment import IPOMDPEnvironment
+from Environment.problem import IpomdpProbelm
 from Problems.tiger.tiger_objects import *
 import random
 
 
-class TigerEnvironment(IPOMDPEnvironment):
+class TigerProblem(IpomdpProbelm):
 
     def __init__(self, states, actions, observations, noise=0.15):
         super().__init__(states, self._set_all_actions(), observations)

@@ -9,7 +9,7 @@ class State(State):
         :param value: float, representing a feasible state value
         """
         self.value = value
-        self.is_terminal = is_terminal
+        super().__init__(str(value), is_terminal)
 
     def __hash__(self):
         return hash(self.value)

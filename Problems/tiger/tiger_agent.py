@@ -57,7 +57,7 @@ class TigerAgent(Agent):
                 root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
             br_node, br_value, = self.planner.search(root_node)
             # self.planner.plot_pomcp_tree(root_node)
-            self.planner.plot_pomcp_belief(root_node)
+            # self.planner.plot_pomcp_belief(root_node)
             self.current_node = br_node
             return Action(br_node.name)
         if self.planning_horizon == 0:

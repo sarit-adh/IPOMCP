@@ -1,7 +1,8 @@
+from typing import Any
 from Agent.agent import *
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-from Problems.labor_market.labor_market_environment import *
+from Problems.labor_market.labor_market_problem import *
 from IPOMCP_solver.pomcp import POMCP
 from IPOMCP_solver.node import *
 
@@ -54,26 +55,26 @@ class ToMZeroWorkerLaborMarketAgent(Agent):
 
     def __init__(self, planning_horizon: int, agent_type: AgentType, planner) -> None:
         self.planning_horizon = planning_horizon
-        self.observations = [None]
+        self.observations = []
         self.actions = []
         self.current_node = None
         super().__init__(agent_type, planner)
 
     @property
-    def compute_optimal_policy(self) -> Action:
+    def compute_optimal_policy(self) -> tuple[Any, Any]:
         if isinstance(self.planner, POMCP):
             if self.current_node is None:
                 root_node = ObservationNode(None, '', '')
             else:
                 root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
-            br_node, br_value, = self.planner.search(root_node)
+            br_node = self.planner.search(root_node)
             self.current_node = br_node
             action = [a for a in self.agent_type.frame.pomdp.actions if a.name == br_node.name][0]
-            return action
+            return action, br_node.value_sum
 
     @property
     def execute_action(self) -> (Observation, float):
-        action = self.compute_optimal_policy
+        action, _ = self.compute_optimal_policy
         self.actions.append(action)
         self.planning_horizon -= 1
         new_state, observation, reward = \
@@ -86,3 +87,19 @@ class ToMZeroWorkerLaborMarketAgent(Agent):
 
     def update_history(self, action: Action, observation: Observation) -> None:
         self.agent_type.beliefs.update_belief(action, observation)
+
+
+class ToMZeroWorker:
+
+    def __init__(self, worker_agent: ToMZeroWorkerLaborMarketAgent, worker_type: ToMZeroWorkerLaborMarketType,
+                 planning_horizon=5):
+        self.worker_agent = worker_agent
+        self.worker_type = worker_type
+        self.planning_horizon = planning_horizon
+
+    def best_response(self):
+        tom_zero_worker_pomcp = POMCP(self.worker_type, horizon=self.planning_horizon)
+        self.worker_agent.planner = tom_zero_worker_pomcp
+        action, q_value = self.worker_agent.compute_optimal_policy
+        return action, q_value
+
