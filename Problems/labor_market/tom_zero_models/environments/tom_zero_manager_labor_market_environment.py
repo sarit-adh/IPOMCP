@@ -28,7 +28,7 @@ class ToMZeroManagerLaborMarketEnvironment(LaborMarketProblem):
             return State(-1, True)
         if isinstance(actions, QuitAction):
             return State(0, True)
-        if isinstance(actions, OfferAction) and actions.value / self.distance > state.value:
+        if isinstance(actions, OfferAction) and actions.value / self.distance >= state.value:
             return State(-1, True)
         feasible_states = self.states[self.states >= state.value]
         new_state = np.random.choice(feasible_states)
@@ -47,7 +47,7 @@ class ToMZeroManagerLaborMarketEnvironment(LaborMarketProblem):
         if isinstance(actions, AcceptAction):
             return 0.0
         if isinstance(actions, OfferAction):
-            if actions.value / self.distance > state.value:
+            if actions.value / self.distance >= state.value:
                 return (self.budget - actions.value).item()
             else:
                 return -self.fee

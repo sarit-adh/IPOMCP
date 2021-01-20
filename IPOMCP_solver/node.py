@@ -28,8 +28,8 @@ class Node(object):
     def is_root(self) -> bool:
         return self.parent is None
 
-    def get_mean_value(self, max_value=1e4) -> float:
-        return self.value_sum / self.times_visited if self.times_visited != 0 else max_value
+    def get_value(self, max_value=1e4) -> float:
+        return self.value_sum if self.times_visited != 0 else max_value
 
     def add_child(self, child):
         if child not in self.children:
@@ -71,16 +71,16 @@ class ObservationNode(Node):
     def update_value(self):
         self.times_visited += 1
 
-    def ucb_score(self, scale=20):
+    def ucb_score(self, scale=5):
         pouct = np.array(
-            [child.get_mean_value() + scale * np.sqrt(np.log(self.times_visited) / child.times_visited) for child in
+            [child.get_value() + scale * np.sqrt(np.log(self.times_visited) / child.times_visited) for child in
              self.children.values()])
         pouct[np.isnan(pouct)] = 1e4
         children_list = list(self.children.values())
         return children_list[np.argmax(pouct).item()]
 
     def compute_q_values(self) -> dict:
-        q_values = [child.get_mean_value() for child in self.children.values()]
+        q_values = [child.get_value() for child in self.children.values()]
         actions = list(self.children.keys())
         return dict(zip(actions, q_values))
 

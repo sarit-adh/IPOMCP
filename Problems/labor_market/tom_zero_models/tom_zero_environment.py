@@ -83,7 +83,7 @@ class TomZeroEnvironment(Environment):
                                                              budget, fee, distance, worker_model)
         manager_frame = Frame(manager_model, self.oc)
         manager_type = ToMZeroManagerLaborMarketType(manager_frame, manager_beliefs)
-        manager_agent = ToMZeroManagerLaborMarketAgent(self.manager_planning_horizon, manager_type, None)
+        manager_agent = ToMZeroLaborMarketAgent(self.manager_planning_horizon, manager_type, None)
         return ToMZeroManager(manager_agent, manager_type)
 
     def create_worker_problem(self, states, labor_cost, distance, fee):
@@ -94,7 +94,7 @@ class TomZeroEnvironment(Environment):
                                                            fee, distance, manager_model)
         worker_frame = Frame(worker_model, self.oc)
         worker_type = ToMZeroWorkerLaborMarketType(worker_frame, worker_beliefs)
-        worker_agent = ToMZeroWorkerLaborMarketAgent(self.worker_planning_horizon, worker_type, None)
+        worker_agent = ToMZeroLaborMarketAgent(self.worker_planning_horizon, worker_type, None)
         return ToMZeroWorker(worker_agent, worker_type)
 
     def simulate_environment(self, agent_types_list: dict, starting_agent):

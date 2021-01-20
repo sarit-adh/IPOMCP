@@ -1,4 +1,4 @@
-from typing import Any
+from Problems.labor_market.tom_zero_models.agents.tom_zero_agent import ToMZeroLaborMarketAgent
 from Agent.agent import *
 import matplotlib.pyplot as plt
 from scipy.stats import norm
@@ -51,47 +51,9 @@ class ToMZeroWorkerLaborMarketType(AgentType):
         return action
 
 
-class ToMZeroWorkerLaborMarketAgent(Agent):
-
-    def __init__(self, planning_horizon: int, agent_type: AgentType, planner) -> None:
-        self.planning_horizon = planning_horizon
-        self.observations = []
-        self.actions = []
-        self.current_node = None
-        super().__init__(agent_type, planner)
-
-    @property
-    def compute_optimal_policy(self) -> tuple[Any, Any]:
-        if isinstance(self.planner, POMCP):
-            if self.current_node is None:
-                root_node = ObservationNode(None, '', '')
-            else:
-                root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
-            br_node = self.planner.search(root_node)
-            self.current_node = br_node
-            action = [a for a in self.agent_type.frame.pomdp.actions if a.name == br_node.name][0]
-            return action, br_node.value_sum
-
-    @property
-    def execute_action(self) -> (Observation, float):
-        action, _ = self.compute_optimal_policy
-        self.actions.append(action)
-        self.planning_horizon -= 1
-        new_state, observation, reward = \
-            self.agent_type.frame.pomdp.step(self.agent_type.frame.pomdp.current_state, action)
-        self.observations.append(observation)
-        self.agent_type.frame.pomdp.update_current_state(new_state)
-        self.update_history(action, observation)
-        self.update_reward(reward, self.planning_horizon)
-        return observation, reward
-
-    def update_history(self, action: Action, observation: Observation) -> None:
-        self.agent_type.beliefs.update_belief(action, observation)
-
-
 class ToMZeroWorker:
 
-    def __init__(self, worker_agent: ToMZeroWorkerLaborMarketAgent, worker_type: ToMZeroWorkerLaborMarketType,
+    def __init__(self, worker_agent: ToMZeroLaborMarketAgent, worker_type: ToMZeroWorkerLaborMarketType,
                  planning_horizon=5):
         self.worker_agent = worker_agent
         self.worker_type = worker_type

@@ -33,7 +33,7 @@ class ToMZeroWorkerLaborMarketEnvironment(LaborMarketProblem):
             return State(-1, True)
         if isinstance(actions, QuitAction):
             return State(0, True)
-        if isinstance(actions, OfferAction) and actions.value < state.value:
+        if isinstance(actions, OfferAction) and actions.value <= state.value:
             return State(-1, True)
         feasible_states = self.states[self.states <= state.value]
         new_state = np.random.choice(feasible_states)
@@ -50,7 +50,7 @@ class ToMZeroWorkerLaborMarketEnvironment(LaborMarketProblem):
         if isinstance(actions, AcceptAction):
             return actions.value - self.labor_costs
         if isinstance(actions, OfferAction):
-            if actions.value < state.value:
+            if actions.value <= state.value:
                 return actions.value - self.labor_costs
             else:
                 return -self.fee

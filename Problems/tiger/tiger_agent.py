@@ -2,6 +2,7 @@ from Agent.agent import *
 import matplotlib.pyplot as plt
 from IPOMCP_solver.pomcp import POMCP
 from IPOMCP_solver.node import *
+from collections import OrderedDict
 
 
 class TigerBelief(Belief):
@@ -46,19 +47,19 @@ class TigerAgent(Agent):
         self.observations = [None]        
         self.actions = []
         self.current_node = None
+        self.action_nodes = OrderedDict()
         super().__init__(agent_type, planner)
 
     @property
     def compute_optimal_policy(self) -> Action:
         if isinstance(self.planner, POMCP):
-            if self.current_node is None:
+            if not bool(self.action_nodes):
                 root_node = ObservationNode(None, '', '')
             else:
-                root_node = self.current_node.children[self.observations[len(self.observations)-1].name]
-            br_node, br_value, = self.planner.search(root_node)
-            # self.planner.plot_pomcp_tree(root_node)
-            # self.planner.plot_pomcp_belief(root_node)
-            self.current_node = br_node
+                last_action_node = self.action_nodes[next(reversed(self.action_nodes))]
+                root_node = last_action_node.children[self.observations[len(self.observations) - 1].name]
+            br_node = self.planner.search(root_node)
+            self.action_nodes[hash(br_node)] = br_node
             return Action(br_node.name)
         if self.planning_horizon == 0:
             return np.random.choice(np.array([Action('open-left'), Action('open-right')]))
