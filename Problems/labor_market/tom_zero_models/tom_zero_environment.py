@@ -25,6 +25,7 @@ class LaborMarketResults:
         self.last_offer = None
         self.first_offer = None
         self.is_cleared = False
+        self.is_closed = False
         self.is_feasible = self._is_feasible_deal()
 
     def _is_feasible_deal(self):
@@ -97,76 +98,105 @@ class TomZeroEnvironment(Environment):
         worker_agent = ToMZeroLaborMarketAgent(self.worker_planning_horizon, worker_type, None)
         return ToMZeroWorker(worker_agent, worker_type)
 
+    @staticmethod
+    def manager_first_negotiation(budget, ask,
+                                  labor_costs, bid_qv,
+                                  lm_object: LaborMarketResults, starting_agent_name='manager'):
+        if ask.name == 'quit':
+            salary = 0.0
+            manager_reward = 0.0
+            worker_reward = 0.0
+            lm_object.last_offer = starting_agent_name
+            lm_object.salary = salary
+            lm_object.manager_reward += manager_reward
+            lm_object.worker_reward += worker_reward
+            lm_object.is_cleared = False
+        elif ask.value - labor_costs >= bid_qv:
+            salary = ask.value
+            lm_object.salary = salary
+            lm_object.manager_reward += budget - salary
+            lm_object.worker_reward += salary - labor_costs
+            lm_object.is_cleared = True
+        else:
+            lm_object.manager_reward += -lm_object.fee
+        return lm_object
+
+    @staticmethod
+    def worker_first_negotiation(budget, ask_qv,
+                                 labor_costs, bid,
+                                 lm_object: LaborMarketResults, starting_agent_name='worker'):
+        if bid.name == 'quit':
+            salary = 0.0
+            manager_reward = 0.0
+            worker_reward = 0.0
+            lm_object.last_offer = starting_agent_name
+            lm_object.salary = salary
+            lm_object.manager_reward += manager_reward
+            lm_object.worker_reward += worker_reward
+            lm_object.is_cleared = False
+            lm_object.is_closed = True
+        elif budget - bid.value >= ask_qv:
+            salary = bid.value
+            lm_object.last_offer = starting_agent_name
+            lm_object.salary = salary
+            lm_object.manager_reward += budget - salary
+            lm_object.worker_reward += salary - labor_costs
+            lm_object.is_cleared = True
+            lm_object.is_closed = True
+        else:
+            lm_object.worker_reward += -lm_object.fee
+        return lm_object
+
     def simulate_environment(self, agent_types_list: dict, starting_agent):
         manager_ipomdp = agent_types_list['manager']
         worker_ipomdp = agent_types_list['worker']
-        lc_results = LaborMarketResults(manager_ipomdp.manager_type.frame.pomdp.budget,
+        lm_results = LaborMarketResults(manager_ipomdp.manager_type.frame.pomdp.budget,
                                         worker_ipomdp.worker_type.frame.pomdp.labor_costs,
                                         manager_ipomdp.manager_type.frame.pomdp.fee,
                                         manager_ipomdp.manager_type.frame.pomdp.distance)
-        manager_reward = 0.0
-        worker_reward = 0.0
-        i = 20
-        while i >= 0:
+        lm_results.manager_reward = 0.0
+        lm_results.worker_reward = 0.0
+        i = 0
+        while not lm_results.is_closed:
             ask, ask_qv = manager_ipomdp.best_response()
             bid, bid_qv = worker_ipomdp.best_response()
             if starting_agent == 'manager':
-                lc_results.first_offer = 'manager'
-                lc_results.asks.append(ask.value)
-                lc_results.n_trials += 1
-                if ask.value - worker_ipomdp.worker_type.frame.pomdp.labor_costs >= bid_qv:
-                    salary = ask.value
-                    manager_reward += manager_ipomdp.manager_type.frame.pomdp.budget - salary
-                    worker_reward += salary - worker_ipomdp.worker_type.frame.pomdp.labor_costs
-                    lc_results.last_offer = 'manager'
-                    lc_results.salary = salary
-                    lc_results.manager_reward = manager_reward
-                    lc_results.worker_reward = worker_reward
-                    lc_results.is_cleared = True
+                lm_results.first_offer = 'manager'
+                lm_results.asks.append(ask.value)
+                lm_results.n_trials += 1
+                lm_results = self.manager_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget,
+                                                            ask, worker_ipomdp.worker_type.frame.pomdp.labor_costs,
+                                                            bid_qv, lm_results)
+                if lm_results.is_closed:
                     break
-                if ask.name == 'quit':
-                    salary = 0.0
-                    manager_reward = 0.0
-                    worker_reward = 0.0
-                    lc_results.last_offer = 'manager'
-                    lc_results.salary = salary
-                    lc_results.manager_reward = manager_reward
-                    lc_results.worker_reward = worker_reward
-                    lc_results.is_cleared = False
+                lm_results.bids.append(bid.value)
+                lm_results.n_trials += 1
+                lm_results = self.worker_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget,
+                                                           ask_qv, worker_ipomdp.worker_type.frame.pomdp.labor_costs,
+                                                           bid, lm_results)
+                if lm_results.is_closed:
                     break
-                else:
-                    manager_reward += -manager_ipomdp.manager_type.frame.pomdp.fee
-                    lc_results.manager_reward = manager_reward
-                lc_results.bids.append(bid.value)
-                lc_results.n_trials += 1
-                if bid.value - manager_ipomdp.manager_type.frame.pomdp.budget >= ask_qv:
-                    salary = bid.value
-                    manager_reward += manager_ipomdp.manager_type.frame.pomdp.budget - salary
-                    worker_reward += salary - worker_ipomdp.worker_type.frame.pomdp.labor_costs
-                    lc_results.last_offer = 'worker'
-                    lc_results.salary = salary
-                    lc_results.manager_reward = manager_reward
-                    lc_results.worker_reward = worker_reward
-                    lc_results.is_cleared = True
+            else:
+                lm_results.first_offer = 'worker'
+                lm_results.bids.append(bid.value)
+                lm_results.n_trials += 1
+                lm_results = self.worker_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget,
+                                                           ask_qv, worker_ipomdp.worker_type.frame.pomdp.labor_costs,
+                                                           bid, lm_results)
+                if lm_results.is_closed:
                     break
-                if bid.name == 'quit':
-                    salary = 0.0
-                    manager_reward = 0.0
-                    worker_reward = 0.0
-                    lc_results.last_offer = 'worker'
-                    lc_results.salary = salary
-                    lc_results.manager_reward = manager_reward
-                    lc_results.worker_reward = worker_reward
-                    lc_results.is_cleared = False
+                lm_results.asks.append(ask.value)
+                lm_results.n_trials += 1
+                lm_results = self.manager_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget,
+                                                            ask, worker_ipomdp.worker_type.frame.pomdp.labor_costs,
+                                                            bid_qv, lm_results)
+                if lm_results.is_closed:
                     break
-                else:
-                    worker_reward += -worker_ipomdp.worker_type.frame.pomdp.fee
-                    lc_results.worker_reward = worker_reward
             reject_observation = Observation(False, 'reject')
             manager_ipomdp.manager_agent.observations.append(reject_observation)
             worker_ipomdp.worker_agent.observations.append(reject_observation)
-            i += -1
-        return lc_results
+            i += 1
+        return lm_results
 
 
 if __name__ == '__main__':

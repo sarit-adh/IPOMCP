@@ -1,5 +1,4 @@
 from Problems.labor_market.labor_market_problem import *
-from scipy.stats import norm, gamma
 
 
 class TomZeroWorkerWorkerModel:
@@ -27,9 +26,9 @@ class ToMZeroManagerLaborMarketEnvironment(LaborMarketProblem):
         if isinstance(actions, AcceptAction) or state.is_terminal:
             return State(-1, True)
         if isinstance(actions, QuitAction):
-            return State(0, True)
+            return State(state.value, True)
         if isinstance(actions, OfferAction) and actions.value / self.distance >= state.value:
-            return State(-1, True)
+            return State(state.value, True)
         feasible_states = self.states[self.states >= state.value]
         new_state = np.random.choice(feasible_states)
         return State(new_state, False)
@@ -53,5 +52,3 @@ class ToMZeroManagerLaborMarketEnvironment(LaborMarketProblem):
                 return -self.fee
         if isinstance(actions, QuitAction):
             return 0.0
-
-

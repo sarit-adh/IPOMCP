@@ -23,7 +23,10 @@ class ToMZeroLaborMarketAgent(Agent):
             else:
                 # next(reversed(od.values()))
                 last_action_node = self.action_nodes[next(reversed(self.action_nodes))]
-                root_node = last_action_node.children[self.observations[len(self.observations)-1].name]
+                try:
+                    root_node = last_action_node.children[self.observations[len(self.observations)-1].name]
+                except KeyError:
+                    root_node = ObservationNode(None, '', '')
             br_node = self.planner.search(root_node)
             self.action_nodes[hash(br_node)] = br_node
             action = [a for a in self.agent_type.frame.pomdp.actions if a.name == br_node.name][0]

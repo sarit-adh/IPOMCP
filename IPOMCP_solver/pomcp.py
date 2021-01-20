@@ -64,8 +64,8 @@ class POMCP:
     def simulate(self, s: State, h: ObservationNode, depth: int) -> float:
         if self.gamma ** depth < self.epsilon or depth == self.horizon:
             return 0
-        if s.is_terminal:
-            return 0
+        # if s.is_terminal:
+        #     return 0
         if not h.children:
             for action in self.environment.list_all_actions():
                 new_node = ActionNode(h, h.history + "--" + action.name, action.name)

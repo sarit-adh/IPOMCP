@@ -32,9 +32,9 @@ class ToMZeroWorkerLaborMarketEnvironment(LaborMarketProblem):
         if isinstance(actions, AcceptAction) or state.is_terminal:
             return State(-1, True)
         if isinstance(actions, QuitAction):
-            return State(0, True)
+            return State(state.value, True)
         if isinstance(actions, OfferAction) and actions.value <= state.value:
-            return State(-1, True)
+            return State(state.value, True)
         feasible_states = self.states[self.states <= state.value]
         new_state = np.random.choice(feasible_states)
         return State(new_state, False)
