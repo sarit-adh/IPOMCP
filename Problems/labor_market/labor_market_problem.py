@@ -36,7 +36,7 @@ class LaborMarketProblem(IpomdpProbelm):
         """
         if state is None:
             initial_state = np.random.choice(self.states)
-            initial_state = State(initial_state)
+            initial_state = State(initial_state, 'reject', False)
             return initial_state
         else:
             return state

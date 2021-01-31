@@ -60,7 +60,8 @@ class ToMZeroManager:
         self.planning_horizon = planning_horizon
 
     def best_response(self):
-        tom_zero_manager_pomcp = POMCP(self.manager_type, horizon=self.planning_horizon)
+        tom_zero_manager_pomcp = POMCP(self.manager_type, horizon=self.planning_horizon,
+                                       exploration_bonus=self.manager_agent.exploration_bonus)
         self.manager_agent.planner = tom_zero_manager_pomcp
         action, q_value = self.manager_agent.compute_optimal_policy
         return action, q_value

@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 
 class POMCP:
 
-    def __init__(self, environment: AgentType, gamma=0.95, epsilon=0.01, horizon=3):
+    def __init__(self, environment: AgentType, exploration_bonus=5, gamma=0.95, epsilon=0.01, horizon=3):
         self.environment = environment
         self.gamma = gamma
         self.epsilon = epsilon
         self.horizon = horizon
+        self.exploration_bonus = exploration_bonus
         self.tree = OrderedDict()
 
     @staticmethod
@@ -75,7 +76,8 @@ class POMCP:
             action = self.environment.rollout_policy()
             action_node = self.tree[h.history + "--" + str(action.name)]
             new_state, observation, reward = self.environment.frame.pomdp.step(s, action)
-            new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name), str(observation.name), True)
+            new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name),
+                                               str(observation.name), self.exploration_bonus, True)
             action_node.add_child(new_history_node)
             R = reward + self.gamma * self.rollout(new_state, new_history_node, depth + 1)
             self.tree[new_history_node.history] = new_history_node
@@ -89,7 +91,7 @@ class POMCP:
             new_history_node = action_node.children[observation.name]
         else:
             new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name),
-                                               str(observation.name), True)
+                                               str(observation.name), self.exploration_bonus, True)
             action_node.add_child(new_history_node)
         r = reward + self.gamma * self.simulate(new_state, new_history_node, depth + 1)
         self.tree[new_history_node.history] = new_history_node
@@ -106,7 +108,8 @@ class POMCP:
         action = self.environment.rollout_policy()
         new_state, observation, reward = self.environment.frame.pomdp.step(s, action)
         action_node = ActionNode(h, h.history + action.name, action.name)
-        new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name), str(observation.name), True)
+        new_history_node = ObservationNode(action_node, action_node.history + "--" + str(observation.name),
+                                           str(observation.name), self.exploration_bonus, True)
         r = reward + self.gamma * self.rollout(new_state, new_history_node, depth + 1)
         return r
 

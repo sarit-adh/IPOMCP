@@ -57,6 +57,7 @@ class TomZeroEnvironment(Environment):
             self.manager_planning_horizon = data['manager'][0]['planning_horizon']
             self.worker_planning_horizon = data['worker'][0]['planning_horizon']
             self.n_samples = data['market'][0]['n_samples']
+            self.n_actions = data['market'][0]['n_actions']
             self.oc = OptimalityCriterion(0.95)
             self.labor_cost_location = data['worker'][0]['a']
             self.budget_location = data['manager'][0]['loc']
@@ -71,26 +72,37 @@ class TomZeroEnvironment(Environment):
         manager_states = norm(loc=self.budget_location, scale=self.budget_scale).rvs(
             self.n_samples)
         worker_states = gamma(a=self.labor_cost_location).rvs(self.n_samples)
+        manager_actions = self._create_ask_vector(worker_states, distance)
+        worker_actions = self._create_bid_vector(manager_states)
         budget = np.random.choice(manager_states, 1).item()
         labor_cost = np.random.choice(worker_states, 1).item()
-        managers_model = self.create_manager_problem(worker_states, distance, budget, fee)
-        workers_model = self.create_worker_problem(manager_states, labor_cost, distance, fee)
+
+        managers_model = self.create_manager_problem(worker_states, worker_actions, distance, budget, fee)
+        workers_model = self.create_worker_problem(manager_states, manager_actions, labor_cost, distance, fee)
         return {'manager': managers_model, 'worker': workers_model}
 
-    def create_manager_problem(self, states, distance, budget, fee):
+    def _create_ask_vector(self, worker_states, distance):
+        actions = np.random.choice(worker_states, self.n_actions)
+        return actions*distance
+
+    def _create_bid_vector(self, manager_states):
+        actions = np.random.choice(manager_states, self.n_actions)
+        return actions
+
+    def create_manager_problem(self, states, actions, distance, budget, fee):
         manager_beliefs = ToMZeroManagerLaborMarketBelief(self.labor_cost_location, states, distance)
         worker_model = TomZeroWorkerWorkerModel(np.random.choice(states), distance)
-        manager_model = ToMZeroManagerLaborMarketEnvironment(states, states * distance,
+        manager_model = ToMZeroManagerLaborMarketEnvironment(states, actions,
                                                              budget, fee, distance, worker_model)
         manager_frame = Frame(manager_model, self.oc)
         manager_type = ToMZeroManagerLaborMarketType(manager_frame, manager_beliefs)
         manager_agent = ToMZeroLaborMarketAgent(self.manager_planning_horizon, manager_type, None)
         return ToMZeroManager(manager_agent, manager_type)
 
-    def create_worker_problem(self, states, labor_cost, distance, fee):
+    def create_worker_problem(self, states, actions, labor_cost, distance, fee):
         worker_beliefs = ToMZeroWorkerLaborMarketBelief(self.budget_location, self.budget_scale, states)
         manager_model = TomZeroWorkerManagerModel(np.random.choice(states))
-        worker_model = ToMZeroWorkerLaborMarketEnvironment(states, states,
+        worker_model = ToMZeroWorkerLaborMarketEnvironment(states, actions,
                                                            labor_cost,
                                                            fee, distance, manager_model)
         worker_frame = Frame(worker_model, self.oc)
@@ -111,12 +123,14 @@ class TomZeroEnvironment(Environment):
             lm_object.manager_reward += manager_reward
             lm_object.worker_reward += worker_reward
             lm_object.is_cleared = False
+            lm_object.is_closed = True
         elif ask.value - labor_costs >= bid_qv:
             salary = ask.value
             lm_object.salary = salary
             lm_object.manager_reward += budget - salary
             lm_object.worker_reward += salary - labor_costs
             lm_object.is_cleared = True
+            lm_object.is_closed = True
         else:
             lm_object.manager_reward += -lm_object.fee
         return lm_object
@@ -164,8 +178,8 @@ class TomZeroEnvironment(Environment):
                 lm_results.first_offer = 'manager'
                 lm_results.asks.append(ask.value)
                 lm_results.n_trials += 1
-                lm_results = self.manager_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget,
-                                                            ask, worker_ipomdp.worker_type.frame.pomdp.labor_costs,
+                lm_results = self.manager_first_negotiation(manager_ipomdp.manager_type.frame.pomdp.budget, ask,
+                                                            worker_ipomdp.worker_type.frame.pomdp.labor_costs,
                                                             bid_qv, lm_results)
                 if lm_results.is_closed:
                     break
@@ -200,10 +214,11 @@ class TomZeroEnvironment(Environment):
 
 
 if __name__ == '__main__':
-    m = TomZeroEnvironment(20, 'market_input.json')
+    m = TomZeroEnvironment(1, 'market_input.json')
     while m.number_of_trails >= 0:
         agents_list = m.create_market()
         market_results = m.simulate_environment(agents_list, 'manager')
         market_results.summarize_market()
+        print(m.number_of_trails)
         del agents_list
         m.number_of_trails -= 1

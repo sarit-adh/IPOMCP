@@ -3,27 +3,29 @@ from Environment.objects import *
 
 class State(State):
 
-    def __init__(self, value: float, is_terminal=False):
+    def __init__(self, value: float, name: str, is_terminal=False):
         """
 
         :param value: float, representing a feasible state value
         """
         self.value = value
-        super().__init__(str(value), is_terminal)
+        super().__init__(name, is_terminal)
 
     def __hash__(self):
-        return hash(self.value)
+        return hash((self.value, self.name, self.is_terminal))
 
     def __eq__(self, other):
         if isinstance(other, State):
-            return self.value == other.value
+            return self.value == other.value and \
+                   self.name == other.name and \
+                   self.is_terminal == other.is_terminal
         return False
 
     def __str__(self) -> str:
         return self.__repr__()
 
     def __repr__(self) -> str:
-        return f'State with value = {self.value}'
+        return f'State with value = {self.value}, name = {self.name} and is terminal {self.is_terminal}'
 
 
 class Action(Action):

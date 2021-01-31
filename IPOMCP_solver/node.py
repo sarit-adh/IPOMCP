@@ -49,15 +49,17 @@ class ActionNode(Node):
 
 class ObservationNode(Node):
 
-    def __init__(self, parent, history: str, name: str, is_empty: bool = True) -> None:
+    def __init__(self, parent, history: str, name: str, exploration_bonus=5.0, is_empty: bool = True) -> None:
         super().__init__(parent, history, name)
         self.particle_set = {}
         self.is_empty = is_empty
+        self.exploration_bonus = exploration_bonus
 
     def __str__(self) -> str:
         return f'Observations node with {self.times_visited} visits'
 
     def add_particle(self, particle: State) -> None:
+        self.is_empty = False
         if hash(particle) not in self.particle_set:
             self.particle_set[hash(particle)] = [particle, 1]
         else:
@@ -71,9 +73,10 @@ class ObservationNode(Node):
     def update_value(self):
         self.times_visited += 1
 
-    def ucb_score(self, scale=5):
+    def ucb_score(self):
         pouct = np.array(
-            [child.get_value() + scale * np.sqrt(np.log(self.times_visited) / child.times_visited) for child in
+            [child.get_value() + self.exploration_bonus * np.sqrt(np.log(self.times_visited) / child.times_visited)
+             for child in
              self.children.values()])
         pouct[np.isnan(pouct)] = 1e4
         children_list = list(self.children.values())
