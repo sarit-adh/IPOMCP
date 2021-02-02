@@ -1,5 +1,6 @@
-from Environment.objects import *
 import numpy as np
+
+from Environment.objects import *
 
 
 def euclidean_dist(x: np.array,y: np.array) -> float:

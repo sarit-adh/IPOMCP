@@ -1,7 +1,7 @@
-from tiger_environment import *
-from tiger_agent import *
-from IPOMCP_solver.pomcp import POMCP
 from IPOMCP_solver.node import *
+from IPOMCP_solver.pomcp import POMCP
+from tiger_agent import *
+from tiger_environment import *
 
 states = [State("tiger-left"), State("tiger-right")]
 actions = [Action("open-left"), Action("open-right"), Action('listen')]

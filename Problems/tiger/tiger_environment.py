@@ -1,6 +1,7 @@
+import random
+
 from Environment.problem import IpomdpProbelm
 from Problems.tiger.tiger_objects import *
-import random
 
 
 class TigerProblem(IpomdpProbelm):

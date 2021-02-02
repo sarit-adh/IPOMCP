@@ -1,4 +1,3 @@
-from abc import ABC
 """
 Since States, Actions and Observations equality may be defined differently we enable
 override of the hash/equal methods

@@ -1,5 +1,7 @@
 import numpy as np
-from interactive_state import InteractiveState, Model, Frame
+
+from interactive_state import Frame
+
 
 def run_simulation(pomcp, initial_belief, steps):
     history = ''

@@ -1,6 +1,8 @@
-import numpy as np
-from Environment.objects import *
 from collections import OrderedDict
+
+import numpy as np
+
+from Environment.objects import *
 
 
 class Node(object):
@@ -68,7 +70,11 @@ class ObservationNode(Node):
     def sample_from_particle_set(self):
         weights = [v[1] for v in self.particle_set.values()]
         states = [v[0] for v in self.particle_set.values()]
-        return np.random.choice(states, p=np.array(weights) / sum(weights))
+        try:
+            new_state = np.random.choice(states, p=np.array(weights) / sum(weights))
+        except ValueError:
+            print('Help')
+        return new_state
 
     def update_value(self):
         self.times_visited += 1

@@ -1,8 +1,10 @@
-from Agent.agent import *
-import matplotlib.pyplot as plt
-from IPOMCP_solver.pomcp import POMCP
-from IPOMCP_solver.node import *
 from collections import OrderedDict
+
+import matplotlib.pyplot as plt
+
+from Agent.agent import *
+from IPOMCP_solver.node import *
+from IPOMCP_solver.pomcp import POMCP
 
 
 class TigerBelief(Belief):

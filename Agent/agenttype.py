@@ -1,6 +1,7 @@
+import numpy as np
+
 from Agent.frame import *
 from Agent.objects import *
-import numpy as np
 
 
 class AgentType(ABC):

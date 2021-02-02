@@ -1,6 +1,7 @@
+import numpy as np
+
 from Environment.problem import IpomdpProbelm
 from Problems.labor_market.labor_market_objects import *
-import numpy as np
 
 
 class LaborMarketProblem(IpomdpProbelm):

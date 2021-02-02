@@ -1,7 +1,8 @@
-from Problems.labor_market.tom_zero_models.environments.tom_zero_manager_labor_market_environment import *
-from Problems.labor_market.tom_zero_models.agents.tom_zero_manager_agent import *
-from IPOMCP_solver.pomcp import POMCP
 from scipy.stats import norm, gamma
+
+from IPOMCP_solver.pomcp import POMCP
+from Problems.labor_market.tom_zero_models.agents.tom_zero_manager_agent import *
+from Problems.labor_market.tom_zero_models.environments.tom_zero_manager_labor_market_environment import *
 
 n = 30
 states = gamma(5).rvs(n)

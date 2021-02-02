@@ -1,5 +1,5 @@
 import random
-import numpy as np
+
 
 class Environment(object):
 	def __init__(self, states, observations, actions, observation_table, reward_table, transition_table):

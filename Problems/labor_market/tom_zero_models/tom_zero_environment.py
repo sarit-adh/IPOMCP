@@ -1,52 +1,19 @@
+
+import logging
+import os
+
 from scipy.stats import uniform
+
+from Problems.labor_market.labor_market_data import *
 from Problems.labor_market.labor_market_emvironment import Environment
-from Problems.labor_market.tom_zero_models.environments.tom_zero_manager_labor_market_environment import *
 from Problems.labor_market.tom_zero_models.agents.tom_zero_manager_agent import *
-from Problems.labor_market.tom_zero_models.environments.tom_zero_worker_labor_market_environment import *
 from Problems.labor_market.tom_zero_models.agents.tom_zero_worker_agent import *
-from Problems.labor_market.labor_market_objects import *
-import numpy as np
-import json
+from Problems.labor_market.tom_zero_models.environments.tom_zero_manager_labor_market_environment import *
+from Problems.labor_market.tom_zero_models.environments.tom_zero_worker_labor_market_environment import *
 
-
-class LaborMarketResults:
-
-    def __init__(self, budget, labor_costs, fee, distance):
-        self.fee = fee
-        self.distance = distance
-        self.budget = budget
-        self.labor_costs = labor_costs
-        self.bids = []
-        self.asks = []
-        self.manager_reward = 0.0
-        self.worker_reward = 0.0
-        self.salary = 0.0
-        self.n_trials = 0.0
-        self.last_offer = None
-        self.first_offer = None
-        self.is_cleared = False
-        self.is_closed = False
-        self.is_feasible = self._is_feasible_deal()
-
-    def _is_feasible_deal(self):
-        return self.budget - self.labor_costs > 0
-
-    def visualize_market(self):
-        pass
-
-    def summarize_market(self):
-        print(f'Market is cleared: {self.is_cleared}')
-        print(f'The market is feasible: {self.is_feasible}')
-        print(f'The market is over after: {self.n_trials} iterations')
-        print(f'Salary agreed: {self.salary}')
-        print(f'Managers cumulative reward is: {self.manager_reward}')
-        print(f'Workers cumulative reward is: {self.worker_reward}')
-        print(f'Managers budget is: {self.budget}')
-        print(f'Workers labor costs are: {self.labor_costs}')
-        print(f'Managers asks are: {self.asks}')
-        print(f'Workers bids are: {self.bids}')
-        print("--------- NEW MARKET ------------")
-
+logging.basicConfig(filename='tom_zero_market.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class TomZeroEnvironment(Environment):
 
@@ -65,39 +32,40 @@ class TomZeroEnvironment(Environment):
             self.average_budget = data['market'][0]['avg_distance']
             self.min_fee = data['market'][0]['min_fee']
             self.max_fee = data['market'][0]['max_fee']
+        manager_parent_distribution = norm(loc=self.budget_location, scale=self.budget_scale)
+        worker_parent_distribution = gamma(a=self.labor_cost_location)
+        self.manager_states = manager_parent_distribution.rvs(
+            self.n_samples)
+        self.worker_states = worker_parent_distribution.rvs(self.n_samples)
+        self.manager_actions = self._create_ask_vector(worker_parent_distribution)
+        self.worker_actions = self._create_bid_vector(manager_parent_distribution)
 
     def create_market(self) -> dict:
         fee = uniform(self.min_fee, self.max_fee).rvs(1).item()
         distance = gamma(a=self.average_budget).rvs(1).item()
-        manager_states = norm(loc=self.budget_location, scale=self.budget_scale).rvs(
-            self.n_samples)
-        worker_states = gamma(a=self.labor_cost_location).rvs(self.n_samples)
-        manager_actions = self._create_ask_vector(worker_states, distance)
-        worker_actions = self._create_bid_vector(manager_states)
-        budget = np.random.choice(manager_states, 1).item()
-        labor_cost = np.random.choice(worker_states, 1).item()
-
-        managers_model = self.create_manager_problem(worker_states, worker_actions, distance, budget, fee)
-        workers_model = self.create_worker_problem(manager_states, manager_actions, labor_cost, distance, fee)
+        budget = np.random.choice(self.manager_states, 1).item()
+        labor_cost = np.random.choice(self.worker_states, 1).item()
+        managers_model = self.create_manager_problem(self.worker_states, self.manager_actions, distance, budget, fee)
+        workers_model = self.create_worker_problem(self.manager_states, self.worker_actions, labor_cost, distance, fee)
         return {'manager': managers_model, 'worker': workers_model}
 
-    def _create_ask_vector(self, worker_states, distance):
-        actions = np.random.choice(worker_states, self.n_actions)
-        return actions*distance
+    def _create_ask_vector(self, parent_distribution):
+        actions = parent_distribution.ppf(np.arange(1 / self.n_actions, 1 - 1 / self.n_actions, 1 / self.n_actions))
+        return actions
 
-    def _create_bid_vector(self, manager_states):
-        actions = np.random.choice(manager_states, self.n_actions)
+    def _create_bid_vector(self, parent_distribution):
+        actions = parent_distribution.ppf(np.arange(1 / self.n_actions, 1 - 1 / self.n_actions, 1 / self.n_actions))
         return actions
 
     def create_manager_problem(self, states, actions, distance, budget, fee):
         manager_beliefs = ToMZeroManagerLaborMarketBelief(self.labor_cost_location, states, distance)
         worker_model = TomZeroWorkerWorkerModel(np.random.choice(states), distance)
-        manager_model = ToMZeroManagerLaborMarketEnvironment(states, actions,
+        manager_model = ToMZeroManagerLaborMarketEnvironment(states, actions * distance,
                                                              budget, fee, distance, worker_model)
         manager_frame = Frame(manager_model, self.oc)
         manager_type = ToMZeroManagerLaborMarketType(manager_frame, manager_beliefs)
         manager_agent = ToMZeroLaborMarketAgent(self.manager_planning_horizon, manager_type, None)
-        return ToMZeroManager(manager_agent, manager_type)
+        return ToMZeroManager(manager_agent, manager_type, self.manager_planning_horizon)
 
     def create_worker_problem(self, states, actions, labor_cost, distance, fee):
         worker_beliefs = ToMZeroWorkerLaborMarketBelief(self.budget_location, self.budget_scale, states)
@@ -108,7 +76,7 @@ class TomZeroEnvironment(Environment):
         worker_frame = Frame(worker_model, self.oc)
         worker_type = ToMZeroWorkerLaborMarketType(worker_frame, worker_beliefs)
         worker_agent = ToMZeroLaborMarketAgent(self.worker_planning_horizon, worker_type, None)
-        return ToMZeroWorker(worker_agent, worker_type)
+        return ToMZeroWorker(worker_agent, worker_type, self.worker_planning_horizon)
 
     @staticmethod
     def manager_first_negotiation(budget, ask,
@@ -214,11 +182,12 @@ class TomZeroEnvironment(Environment):
 
 
 if __name__ == '__main__':
-    m = TomZeroEnvironment(1, 'market_input.json')
+    m = TomZeroEnvironment(15, os.path.join(__location__, 'market_input.json'))
     while m.number_of_trails >= 0:
         agents_list = m.create_market()
         market_results = m.simulate_environment(agents_list, 'manager')
-        market_results.summarize_market()
+        js = market_results.summarize_market()
+        print(json.dumps(js, indent=4, sort_keys=True))
         print(m.number_of_trails)
         del agents_list
         m.number_of_trails -= 1

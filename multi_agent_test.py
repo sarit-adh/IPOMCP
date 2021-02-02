@@ -1,6 +1,6 @@
-from utils import *
 from IPOMCP_solver.pomcp import POMCP
 from ipomcp import IPOMCP
+from utils import *
 
 filename = "Tiger.L1_no_creek.txt"
 physical_states, frames_all_level = read_ipomdp_file(filename, comm=False)

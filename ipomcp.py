@@ -1,7 +1,9 @@
+import random
+
+import numpy as np
+
 from interactive_state import *
 from node import *
-import numpy as np
-import random
 
 
 class IPOMCP:

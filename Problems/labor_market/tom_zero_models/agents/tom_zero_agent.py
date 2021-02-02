@@ -1,9 +1,13 @@
-from typing import Any
-from Agent.agent import *
-from IPOMCP_solver.pomcp import POMCP
-from IPOMCP_solver.node import *
+import logging
 from collections import OrderedDict
+from typing import Any
+
+from Agent.agent import *
+from IPOMCP_solver.node import *
+from IPOMCP_solver.pomcp import POMCP
 from Problems.labor_market.labor_market_objects import *
+
+log = logging.getLogger(__name__)
 
 
 class ToMZeroLaborMarketAgent(Agent):
@@ -24,13 +28,14 @@ class ToMZeroLaborMarketAgent(Agent):
     def compute_optimal_policy(self) -> tuple[Any, Any]:
         if isinstance(self.planner, POMCP):
             if not bool(self.action_nodes):
-                root_node = ObservationNode(None, '', '', exploration_bonus = self.exploration_bonus)
+                root_node = ObservationNode(None, '', '', exploration_bonus=self.exploration_bonus)
             else:
                 # next(reversed(od.values()))
                 last_action_node = self.action_nodes[next(reversed(self.action_nodes))]
                 try:
                     root_node = last_action_node.children[self.observations[len(self.observations)-1].name]
                 except KeyError:
+                    log.error('Trying to access empty observation node', exc_info=True)
                     action = QuitAction()
                     return action, 0.0
             br_node = self.planner.search(root_node)

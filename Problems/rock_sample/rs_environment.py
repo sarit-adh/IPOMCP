@@ -1,6 +1,9 @@
+import seaborn as sns;
+
 from Environment.problem import IpomdpProbelm
 from Problems.rock_sample.rs_objects import *
-import seaborn as sns; sns.set_theme()
+
+sns.set_theme()
 
 
 class RockSampleEnvironment(IpomdpProbelm):

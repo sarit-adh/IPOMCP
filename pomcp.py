@@ -1,6 +1,9 @@
-from node import *
-import numpy as np
 import random
+
+import numpy as np
+
+from node import *
+
 
 class POMCP:
     def __init__(self, environment, gamma=1, epsilon=0.01, horizon=3):

@@ -1,10 +1,11 @@
-from Problems.labor_market.tom_zero_models.agents.tom_zero_agent import ToMZeroLaborMarketAgent
-from Agent.agent import *
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-from Problems.labor_market.labor_market_problem import *
-from IPOMCP_solver.pomcp import POMCP
+
+from Agent.agent import *
 from IPOMCP_solver.node import *
+from IPOMCP_solver.pomcp import POMCP
+from Problems.labor_market.labor_market_problem import *
+from Problems.labor_market.tom_zero_models.agents.tom_zero_agent import ToMZeroLaborMarketAgent
 
 
 def right_truncated_normal_distribution(base_measure, lower_limit, states):

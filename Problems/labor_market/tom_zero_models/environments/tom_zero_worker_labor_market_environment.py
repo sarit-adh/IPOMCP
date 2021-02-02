@@ -1,5 +1,6 @@
-from Problems.labor_market.labor_market_problem import *
 from scipy.stats import norm, gamma
+
+from Problems.labor_market.labor_market_problem import *
 
 
 class TomZeroWorkerManagerModel:

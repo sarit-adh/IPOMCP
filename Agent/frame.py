@@ -1,5 +1,5 @@
-from Environment.problem import *
 from Agent.functions import *
+from Environment.problem import *
 
 
 class Frame(ABC):

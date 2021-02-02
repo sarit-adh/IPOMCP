@@ -1,8 +1,14 @@
+import logging
+import time
+from collections import OrderedDict, Mapping
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
 from Agent.agenttype import *
 from IPOMCP_solver.node import *
-from collections import OrderedDict, Mapping
-import networkx as nx
-import matplotlib.pyplot as plt
+
+log = logging.getLogger(__name__)
 
 
 class POMCP:
@@ -48,6 +54,7 @@ class POMCP:
         plt.show()
 
     def search(self, root_node: ObservationNode, time_out=10000, plot_tree=False):
+        start = time.time()
         for i in range(time_out):
             if root_node.parent is None:
                 # Sample from the environment
@@ -60,6 +67,8 @@ class POMCP:
                 self.tree[root_node.history] = root_node
         if plot_tree:
             self.plot_pomcp_tree(root_node)
+        end = time.time()
+        log.info(f'MCTS took {end-start} seconds')
         return root_node.get_q_max()
 
     def simulate(self, s: State, h: ObservationNode, depth: int) -> float:
@@ -103,8 +112,8 @@ class POMCP:
     def rollout(self, s, h, depth) -> float:
         if self.gamma ** depth < self.epsilon or depth == self.horizon:
             return 0
-        if s.is_terminal:
-            return 0
+        # if s.is_terminal:
+        #     return 0
         action = self.environment.rollout_policy()
         new_state, observation, reward = self.environment.frame.pomdp.step(s, action)
         action_node = ActionNode(h, h.history + action.name, action.name)
